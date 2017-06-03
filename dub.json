@@ -1,0 +1,12 @@
+{
+	"name": "bluejay",
+	"authors": [
+		"Ryan Frame"
+	],
+	"dependencies": {
+		"luad": "~master"
+	},
+	"description": "A cross-platform test runner.",
+	"copyright": "Copyright © 2017 Ryan Frame",
+	"license": "MIT"
+}
