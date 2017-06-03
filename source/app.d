@@ -19,18 +19,20 @@ int main(string[] args)
 		writeln("\n\t-h, --help\tThis help information.");
 		return 0;
 	}
-	auto script = args[1];
+	auto scriptPath = args[1];
 
 	auto lua = new LuaState;
 	setup(lua, options);
 
-	// TODO: If a directory is passed, run all scripts in it.
-	import std.file : exists, isDir, isFile;
-	if (script.exists) {
-		if (script.isFile) {
-			lua.doFile(script);
-		} else if (script.isDir) {
-
+	// TODO: This needs to report test success/failures too.
+	import std.file;
+	if (scriptPath.exists) {
+		if (scriptPath.isFile) {
+			lua.doFile(scriptPath);
+		} else if (scriptPath.isDir) {
+			foreach (script; dirEntries(scriptPath, "*.bj", SpanMode.shallow)) {
+				lua.doFile(script);
+			}
 		}
 	} else {
 		import std.stdio : writeln;
@@ -74,7 +76,6 @@ void setup(LuaState lua, Options options) {
 	}
 	auto t = lua.newTable(system);
 	lua["System"] = t;
-	lua.doString("print(System.OS)");
 }
 
 mixin template setOptions(alias args, alias options) {
