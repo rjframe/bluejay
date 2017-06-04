@@ -48,34 +48,19 @@ void setup(LuaState lua, Options options) {
 		lua.openLibs();
 	} else {
 		import luad.c.all;
-		// TODO: Add modules, utf8, table?
+		// TODO: Add utf8, table?
 		luaopen_base(lua.state);
 		luaopen_string(lua.state);
 		// TODO: throws exception - No calling environment.
 		//luaopen_io(lua.state);
 	}
 
-	import std.typecons : Tuple, tuple;
-	Tuple!(string, string)[] system;
+	import bluejay.env;
+	lua.setVariables;
 
-	version(Windows) {
-		system ~= tuple("OS", "Windows");
-	} else version(linux) {
-		system ~= tuple("OS", "Linux");
-	} else version(OSX) {
-		system ~= tuple("OS", "maxOS");
-	}
-	version(X86) {
-		// TODO: At runtime, determine whether the OS is 32 or 64-bit.
-		// We want the system arch, not the application arch.
-		system ~= tuple("Arch", "x86");
-	} else version(X86_64) {
-		system ~= tuple("Arch", "x86-64");
-	} else version(ARM) {
-		system ~= tuple("Arch", "ARM");
-	}
-	auto t = lua.newTable(system);
-	lua["System"] = t;
+	import bluejay.functions;
+	lua["Test"] = new TestFunctions(lua);
+	lua["Util"] = new UtilFunctions(lua);
 }
 
 mixin template setOptions(alias args, alias options) {
