@@ -15,9 +15,11 @@ struct ExecuteReturns {
 
 /** Functions to run tests. */
 struct TestFunctions {
-	auto run(LuaObject command, LuaObject args) {
+	// It looks like this/self is being passed explicitly into the functions.
+
+	auto run(LuaObject self, LuaObject command, LuaObject args) {
 		import std.process : executeShell;
-		auto output = executeShell(command.toString ~ " " ~ args.toString);
+		auto output = executeShell(command.toString() ~ " " ~ args.toString());
 		return ExecuteReturns(output.status, output.output.dup);
 	}
 }
@@ -25,7 +27,7 @@ struct TestFunctions {
 /** Generic helper functions. */
 struct UtilFunctions {
 	@safe
-	string strip(LuaObject str) {
+	string strip(LuaObject self, LuaObject str) {
 		import std.string : strip;
 		return str.toString().strip;
 	}

@@ -3,6 +3,7 @@
 -- Test that bluejay executes a program and reads its standard output.
 
 local ret = Test:run("echo", "asdf")
+
 -- We don't care about the whitespace, which is system-dependent.
 assert(Util:strip(ret.Output) == "asdf")
 assert(ret.ReturnCode == 0)
