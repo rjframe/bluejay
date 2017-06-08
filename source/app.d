@@ -50,8 +50,6 @@ void setup(LuaState lua, Options options) {
 		// TODO: Add utf8, table?
 		luaopen_base(lua.state);
 		luaopen_string(lua.state);
-		// TODO: throws exception - No calling environment.
-		//luaopen_io(lua.state);
 	}
 
 	import bluejay.env;
