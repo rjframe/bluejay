@@ -1,0 +1,6 @@
+#!/usr/bin/env bluejay
+
+-- Test the utility functions.
+
+local val = " \r\nas\ndf\tjk\r\nlmn. \n"
+assert(Util:strip(val) == "as\ndf\tjk\r\nlmn.")

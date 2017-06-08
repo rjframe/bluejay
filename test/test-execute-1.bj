@@ -2,25 +2,14 @@
 
 -- Test that bluejay executes a program and reads its standard output.
 
--- local ret = Test:run("echo", "asdf");
-Test:run("echo", "asdf");
-assert(Check.Output == "asdf\n" or Check.Output == "asdf\r\n")
-assert(Check.ReturnCode == 0)
-
--- We can also make the assertion based on the system OS.
-
-if (System.OS == "Windows") then
-	assert(Check.Output == "asdf\r\n")
-else
-	assert(Check.Output == "asdf\n")
-end
-
---[[
-
-TODO: This is the interface I want:
-
 local ret = Test:run("echo", "asdf")
-assert(ret.Output == Util:strip("asdf"))
+-- We don't care about the whitespace, which is system-dependent.
+assert(Util:strip(ret.Output) == "asdf")
 assert(ret.ReturnCode == 0)
 
-]]
+-- We can also make the assertion based on the system OS.
+if (System.OS == "Windows") then
+	assert(ret.Output == "asdf\r\n")
+else
+	assert(ret.Output == "asdf\n")
+end

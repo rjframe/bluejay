@@ -3,37 +3,41 @@ module bluejay.functions;
 
 import luad.all;
 
-class TestFunctions {
-	private LuaState lua;
-	LuaTable check;
+/** Return values from executing a process.
 
-	this(ref LuaState lua) {
-		this.lua = lua;
-		check = lua.newTable();
-	}
+	This must remain at the top-level to avoid access violations.
+*/
+struct ExecuteReturns {
+	int ReturnCode;
+	string Output;
+	this(int r, string o) { ReturnCode = r; Output = o; }
+}
 
-	//LuaObject run(LuaObject command, LuaObject args) {
-	void run(LuaObject command, LuaObject args) {
+/** Functions to run tests. */
+struct TestFunctions {
+	auto run(LuaObject command, LuaObject args) {
 		import std.process : executeShell;
 		auto output = executeShell(command.toString ~ " " ~ args.toString);
-
-		check.set("ReturnCode", output.status);
-		check.set("Output", output.output);
-		//return check;
-		lua["Check"] = check;
+		return ExecuteReturns(output.status, output.output.dup);
 	}
 }
 
-class UtilFunctions {
-	private LuaState lua;
-
-	this(ref LuaState lua) {
-		this.lua = lua;
-	}
-
-	// TODO: How do I pass values like this?
+/** Generic helper functions. */
+struct UtilFunctions {
+	@safe
 	string strip(LuaObject str) {
 		import std.string : strip;
 		return str.toString().strip;
 	}
+
+	string getTempDir() {
+		//assert(0);
+		return "asdf";
+	}
+
+	string getTempFile() {
+		assert(0);
+	}
+
+	// TODO: Print Lua table.
 }

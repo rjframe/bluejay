@@ -8,7 +8,6 @@ struct Options {
 int main(string[] args)
 {
 	auto options = Options();
-
 	mixin setOptions!(args, options);
 	if (helpInfo.helpWanted) {
 		import std.stdio : writeln;
@@ -59,13 +58,18 @@ void setup(LuaState lua, Options options) {
 	lua.setVariables;
 
 	import bluejay.functions;
-	lua["Test"] = new TestFunctions(lua);
-	lua["Util"] = new UtilFunctions(lua);
+	//auto t = new TestFunctions();
+	TestFunctions t;
+	UtilFunctions u;
+	//auto u = new UtilFunctions();
+	lua["Test"] = t;
+	lua["Util"] = u;
+	//lua["Test"] = new TestFunctions();
+	//lua["Util"] = new UtilFunctions();
 }
 
 mixin template setOptions(alias args, alias options) {
-	import std.getopt : getopt, defaultGetoptPrinter, config;
-	// TODO: How do I add the script path to this?
+	import std.getopt : getopt;
 	auto helpInfo = getopt(args,
 			"luastd", "\tUse the full lua standard library.", &options.luastd
 		);

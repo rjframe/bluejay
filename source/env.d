@@ -1,4 +1,4 @@
-/** The functions and variables to make available in the Lua environment. */
+/** The environment-related variables to make available in the Lua environment. */
 module bluejay.env;
 
 import luad.all;
@@ -24,4 +24,6 @@ void setVariables(ref LuaState lua) {
 		system ~= tuple("Arch", "ARM");
 	}
 	lua["System"] = lua.newTable(system);
+
+	// TODO: CWD. Allow setting? Or should all of these be considered immutable?
 }
