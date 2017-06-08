@@ -47,10 +47,13 @@ void runScript(LuaState lua, string path) {
 
 	import std.stdio : writeln;
 	import luad.error;
+
+	// We need to reset the cleanup function prior to each script.
+	lua.doString("function cleanup() end");
+	writeln("Testing ", path, ".");
 	try {
 		auto retMessage = lua.doFile(path);
 		if (retMessage.length > 0) {
-			writeln(path, ":");
 			foreach (msg; retMessage) {
 				writeln("\t", msg);
 			}
@@ -58,8 +61,10 @@ void runScript(LuaState lua, string path) {
 		// TODO: Print retMessage if returned.
 	} catch (LuaErrorException ex) {
 		writeln(ex.msg);
+	} finally {
+		auto cleanup = lua.get!LuaFunction("cleanup");
+		cleanup.call();
 	}
-
 }
 
 void setup(LuaState lua, Options options) {

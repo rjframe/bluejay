@@ -2,4 +2,8 @@
 
 -- TODO: Meta tests, so failures are successful tests...
 
+function cleanup()
+	print("Cleaning up after failed assertion.")
+end
+
 assert(false, "Assertion is false, which is what it should be. Failure is success.")
