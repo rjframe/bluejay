@@ -1,0 +1,5 @@
+#!/usr/bin/env bluejay
+
+-- TODO: Meta tests, so failures are successful tests...
+
+assert(false, "Assertion is false, which is what it should be. Failure is success.")

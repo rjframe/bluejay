@@ -25,21 +25,41 @@ int main(string[] args)
 
 	// TODO: This needs to report test success/failures too.
 	import std.file;
-	if (scriptPath.exists) {
-		if (scriptPath.isFile) {
-			lua.doFile(scriptPath);
-		} else if (scriptPath.isDir) {
-			foreach (script; dirEntries(scriptPath, "*.bj", SpanMode.shallow)) {
-				lua.doFile(script);
-			}
-		}
-	} else {
+	if (! scriptPath.exists) {
 		import std.stdio : writeln;
 		writeln("Error: You must pass the path to a script to execute.");
 		return 1;
 	}
 
+	if (scriptPath.isFile) {
+		runScript(lua, scriptPath);
+	} else {
+		foreach (script; dirEntries(scriptPath, "*.bj", SpanMode.shallow)) {
+			runScript(lua, script);
+		}
+	}
+
 	return 0;
+}
+
+void runScript(LuaState lua, string path) {
+	pragma(inline, true)
+
+	import std.stdio : writeln;
+	import luad.error;
+	try {
+		auto retMessage = lua.doFile(path);
+		if (retMessage.length > 0) {
+			writeln(path, ":");
+			foreach (msg; retMessage) {
+				writeln("\t", msg);
+			}
+		}
+		// TODO: Print retMessage if returned.
+	} catch (LuaErrorException ex) {
+		writeln(ex.msg);
+	}
+
 }
 
 void setup(LuaState lua, Options options) {
