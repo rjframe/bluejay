@@ -18,6 +18,7 @@ struct TestFunctions {
 	// It looks like this/self is being passed explicitly into the functions.
 
 	auto run(LuaObject self, LuaObject command, LuaObject args) {
+		// TODO: This needs to take input to pass to the command's STDIN as well.
 		import std.process : executeShell;
 		auto output = executeShell(command.toString() ~ " " ~ args.toString());
 		return ExecuteReturns(output.status, output.output.dup);
@@ -30,6 +31,20 @@ struct UtilFunctions {
 	string strip(LuaObject self, LuaObject str) {
 		import std.string : strip;
 		return str.toString().strip;
+	}
+
+	bool fileExists(LuaObject self, LuaObject path) {
+		import std.file : exists, isFile;
+		auto f = path.toString;
+		if (f.exists && f.isFile) { return true; }
+		return false;
+	}
+
+	bool dirExists(LuaObject self, LuaObject path) {
+		import std.file : exists, isDir;
+		auto d = path.toString;
+		if (d.exists && d.isDir) { return true; }
+		return false;
 	}
 
 	string getTempDir() {

@@ -1,0 +1,6 @@
+#!/usr/bin/env bluejay
+
+-- Test the fileExists and dirExists functions.
+
+assert(Util:fileExists("test/filesystem-1.bj"), "This file does not exist.")
+assert(Util:dirExists("."), "This directory does not exist.")
