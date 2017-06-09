@@ -129,7 +129,7 @@ struct UtilFunctions {
 
 		string dirName = "";
 		while (true) {
-			dirName = tempDir() ~ getName();
+			dirName = tempDir() ~ __getName();
 			if (! dirName.exists) break;
 		}
 
@@ -155,7 +155,7 @@ struct UtilFunctions {
 
 		string fileName = "";
 		while (true) {
-			fileName = tempDir() ~ getName() ~ ".tmp";
+			fileName = tempDir() ~ __getName() ~ ".tmp";
 			if (! fileName.exists) break;
 		}
 
@@ -174,7 +174,7 @@ struct UtilFunctions {
 	}
 
 	@safe
-	private auto getName() {
+	private auto __getName() {
 		import std.algorithm : fill;
 		import std.conv : to;
 		import std.random : Random, randomCover, unpredictableSeed;
@@ -190,7 +190,7 @@ struct UtilFunctions {
 	unittest {
 		import std.file : exists;
 		auto u = UtilFunctions();
-		assert(! exists(u.getName));
+		assert(! exists(u.__getName));
 	}
 
 	// TODO: Pretty-print Lua table.
