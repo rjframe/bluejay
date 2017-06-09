@@ -16,11 +16,18 @@ struct ExecuteReturns {
 /** Functions to run tests. */
 struct TestFunctions {
 	// It looks like this/self is being passed explicitly into the functions.
+/*
+	auto run(LuaObject self, LuaObject exe, LuaTable args) {
+		assert(0);
+	}
 
-	auto run(LuaObject self, LuaObject command, LuaObject args) {
-		// TODO: This needs to take input to pass to the command's STDIN as well.
+	auto run(LuaObject self, string exe, string args, string stdin) {
+
+	}
+*/
+	auto run(LuaObject self, string command, string args) {
 		import std.process : executeShell;
-		auto output = executeShell(command.toString() ~ " " ~ args.toString());
+		auto output = executeShell(command ~ " " ~ args);
 		return ExecuteReturns(output.status, output.output.dup);
 	}
 }
@@ -28,37 +35,33 @@ struct TestFunctions {
 /** Generic helper functions. */
 struct UtilFunctions {
 	@safe
-	string strip(LuaObject self, LuaObject str) {
+	string strip(LuaObject self, string str) {
 		import std.string : strip;
-		return str.toString().strip;
+		return str.strip;
 	}
 
 	@safe
-	bool fileExists(LuaObject self, LuaObject path) {
+	bool fileExists(LuaObject self, string path) {
 		import std.file : exists, isFile;
-		auto f = path.toString;
-		if (f.exists && f.isFile) { return true; }
-		return false;
+		return (path.exists && path.isFile);
 	}
 
 	@safe
-	bool dirExists(LuaObject self, LuaObject path) {
+	bool dirExists(LuaObject self, string path) {
 		import std.file : exists, isDir;
-		auto d = path.toString;
-		if (d.exists && d.isDir) { return true; }
-		return false;
+		return (path.exists && path.isDir);
 	}
 
 	/** Recursively deletes the specified directory. */
-	void removeDir(LuaObject self, LuaObject path) {
+	void removeDir(LuaObject self, string path) {
 		import std.file : rmdirRecurse;
-		rmdirRecurse(path.toString);
+		rmdirRecurse(path);
 	}
 
 	@safe
-	void removeFile(LuaObject self, LuaObject path) {
+	void removeFile(LuaObject self, string path) {
 		import std.file : remove;
-		remove(path.toString);
+		remove(path);
 	}
 
 	/** Creates a directory in the system's temporary directory and returns
@@ -106,5 +109,6 @@ struct UtilFunctions {
 		fill(name[], randomCover(letters, Random(unpredictableSeed)));
 		return name.to!string();
 	}
+
 	// TODO: Pretty-print Lua table.
 }
