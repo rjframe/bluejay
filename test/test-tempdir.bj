@@ -1,0 +1,19 @@
+#!/usr/bin/env bluejay
+
+-- Test temporary directory creation.
+
+-- Because the name is randomly generated, I cannot test for nonexistence
+-- prior to calling getTempDir().
+local dir = Util:getTempDir()
+assert(Util:dirExists(dir))
+
+local file = Util:getTempFile()
+assert(Util:fileExists(file))
+
+
+function cleanup()
+	Util:removeDir(dir)
+	Util:removeFile(file)
+	assert(not Util:dirExists(dir))
+	assert(not Util:fileExists(file))
+end

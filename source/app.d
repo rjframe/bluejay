@@ -81,14 +81,14 @@ void setup(LuaState lua, Options options) {
 	lua.setVariables;
 
 	import bluejay.functions;
-	//auto t = new TestFunctions();
+
+	// TODO: Fully reset the lua state for every test.
+	// TODO: I need to pass the executable path to the scripts.
+	// Either a setup script or environment variables - probably the latter.
 	TestFunctions t;
 	UtilFunctions u;
-	//auto u = new UtilFunctions();
 	lua["Test"] = t;
 	lua["Util"] = u;
-	//lua["Test"] = new TestFunctions();
-	//lua["Util"] = new UtilFunctions();
 }
 
 mixin template setOptions(alias args, alias options) {

@@ -33,6 +33,7 @@ struct UtilFunctions {
 		return str.toString().strip;
 	}
 
+	@safe
 	bool fileExists(LuaObject self, LuaObject path) {
 		import std.file : exists, isFile;
 		auto f = path.toString;
@@ -40,6 +41,7 @@ struct UtilFunctions {
 		return false;
 	}
 
+	@safe
 	bool dirExists(LuaObject self, LuaObject path) {
 		import std.file : exists, isDir;
 		auto d = path.toString;
@@ -47,14 +49,62 @@ struct UtilFunctions {
 		return false;
 	}
 
+	/** Recursively deletes the specified directory. */
+	void removeDir(LuaObject self, LuaObject path) {
+		import std.file : rmdirRecurse;
+		rmdirRecurse(path.toString);
+	}
+
+	@safe
+	void removeFile(LuaObject self, LuaObject path) {
+		import std.file : remove;
+		remove(path.toString);
+	}
+
+	/** Creates a directory in the system's temporary directory and returns
+		the path.
+	*/
 	string getTempDir() {
-		//assert(0);
-		return "asdf";
+		import std.file : exists, mkdirRecurse, tempDir;
+
+		string dirName = "";
+		while (true) {
+			dirName = tempDir() ~ getName();
+			if (! dirName.exists) break;
+		}
+
+		mkdirRecurse(dirName);
+		return dirName;
 	}
 
+	/** Creates a file in the system's temporary directory and returns the
+		path.
+	*/
+	@safe
 	string getTempFile() {
-		assert(0);
+		import std.file : exists, tempDir, write;
+
+		string fileName = "";
+		while (true) {
+			fileName = tempDir() ~ getName() ~ ".tmp";
+			if (! fileName.exists) break;
+		}
+
+		fileName.write(['\0']);
+		return fileName;
 	}
 
-	// TODO: Print Lua table.
+	@safe
+	private auto getName() {
+		import std.algorithm : fill;
+		import std.conv : to;
+		import std.random : Random, randomCover, unpredictableSeed;
+
+		enum dstring letters = "abcdefghijklmnopqrstuvwxyz";
+
+		dchar[8] name;
+		fill(name[], randomCover(letters, Random(unpredictableSeed)));
+		return name.to!string();
+	}
+	// TODO: Pretty-print Lua table.
 }
