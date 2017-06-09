@@ -48,7 +48,7 @@ void runScript(LuaState lua, string path) {
 	import std.stdio : writeln;
 	import luad.error;
 
-	// We need to reset the cleanup function prior to each script.
+	// TODO: We need to reset the cleanup function prior to each script.
 	lua.doString("function cleanup() end");
 	writeln("Testing ", path, ".");
 	try {
@@ -60,7 +60,17 @@ void runScript(LuaState lua, string path) {
 		}
 		// TODO: Print retMessage if returned.
 	} catch (LuaErrorException ex) {
-		writeln(ex.msg);
+		import std.algorithm.iteration : splitter;
+		import std.string : lastIndexOf, lineSplitter;
+
+		auto firstLine = (ex.msg).lineSplitter().front;
+		string msg;
+		foreach (section; firstLine.splitter(':')) {
+			if (lastIndexOf(section, '(') == -1) {
+				msg ~= section ~ ":";
+			}
+		}
+		writeln(msg[0..$-1]);
 	} finally {
 		auto cleanup = lua.get!LuaFunction("cleanup");
 		cleanup.call();
