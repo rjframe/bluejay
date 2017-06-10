@@ -14,8 +14,14 @@ struct ExecuteReturns {
 }
 
 /** Functions to run tests. */
-struct TestFunctions {
+class TestFunctions {
 	// It looks like this/self is being passed explicitly into the functions.
+	private LuaState __lua;
+
+	this(ref LuaState lua) {
+		__lua = lua;
+	}
+
 /*
 	auto run(LuaObject self, LuaObject exe, LuaTable args) {
 		assert(0);
@@ -26,7 +32,7 @@ struct TestFunctions {
 	}
 */
 	@trusted
-	auto run(LuaObject self, string command, string args) {
+	auto run(string command, string args) {
 		import std.process : executeShell;
 		auto output = executeShell(command ~ " " ~ args);
 		return ExecuteReturns(output.status, output.output.dup);
@@ -36,10 +42,21 @@ struct TestFunctions {
 	unittest {
 		import std.string : strip;
 
-		auto t = TestFunctions();
-		auto ret = t.run(LuaObject(), "echo", "asdf");
+		auto lua = new LuaState();
+		auto t = new TestFunctions(lua);
+		auto ret = t.run("echo", "asdf");
 		assert(ret.Output.strip == "asdf");
 		assert(ret.ReturnCode == 0);
+	}
+
+	/** Return true if the provided code throws an error; false otherwise. */
+	bool throws(string code) {
+		try {
+			__lua.doString("pcall(" ~ code ~ ")");
+		} catch (Exception) {
+			return true;
+		}
+		return false;
 	}
 }
 

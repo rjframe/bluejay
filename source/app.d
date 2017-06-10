@@ -93,7 +93,7 @@ void setup(LuaState lua, Options options) {
 	// TODO: Fully reset the lua state for every test.
 	// TODO: I need to pass the executable path to the scripts.
 	// Either a setup script or environment variables - probably the latter.
-	TestFunctions t;
+	TestFunctions t = new TestFunctions(lua);
 	UtilFunctions u;
 	lua["Test"] = t;
 	lua["Util"] = u;
