@@ -1,9 +1,6 @@
 import luad.all;
 
-struct Options {
-	bool luastd = false;
-	string scriptPath;
-}
+import bluejay.execution_state : Options;
 
 int main(string[] args)
 {
@@ -20,10 +17,6 @@ int main(string[] args)
 	}
 	auto scriptPath = args[1];
 
-	auto lua = new LuaState;
-	setup(lua, options);
-
-	// TODO: This needs to report test success/failures too.
 	import std.file;
 	if (! scriptPath.exists) {
 		import std.stdio : writeln;
@@ -32,23 +25,24 @@ int main(string[] args)
 	}
 
 	if (scriptPath.isFile) {
-		runScript(lua, scriptPath);
+		runScript(options, scriptPath);
 	} else {
 		foreach (script; dirEntries(scriptPath, "*.bj", SpanMode.shallow)) {
-			runScript(lua, script);
+			runScript(options, script);
 		}
 	}
 
 	return 0;
 }
 
-void runScript(LuaState lua, string path) {
-	pragma(inline, true)
-
+void runScript(Options options, string path) {
 	import std.stdio : writeln;
 	import luad.error;
 
-	// TODO: We need to reset the cleanup function prior to each script.
+	import bluejay.execution_state : ExecutionState;
+
+	auto lua = new ExecutionState(options);
+
 	lua.doString("function cleanup() end");
 	try {
 		auto retMessage = lua.doFile(path);
@@ -57,7 +51,6 @@ void runScript(LuaState lua, string path) {
 				writeln("\t", msg);
 			}
 		}
-		// TODO: Print retMessage if returned.
 	} catch (LuaErrorException ex) {
 		import std.algorithm.iteration : splitter;
 		import std.string : lastIndexOf, lineSplitter;
@@ -73,30 +66,6 @@ void runScript(LuaState lua, string path) {
 		auto cleanup = lua.get!LuaFunction("cleanup");
 		cleanup.call();
 	}
-}
-
-void setup(LuaState lua, Options options) {
-	if (options.luastd) {
-		lua.openLibs();
-	} else {
-		import luad.c.all;
-		// TODO: Add utf8, table?
-		luaopen_base(lua.state);
-		luaopen_string(lua.state);
-	}
-
-	import bluejay.env;
-	lua.setVariables;
-
-	import bluejay.functions;
-
-	// TODO: Fully reset the lua state for every test.
-	// TODO: I need to pass the executable path to the scripts.
-	// Either a setup script or environment variables - probably the latter.
-	TestFunctions t = new TestFunctions(lua);
-	UtilFunctions u;
-	lua["Test"] = t;
-	lua["Util"] = u;
 }
 
 mixin template setOptions(alias args, alias options) {

@@ -1,0 +1,5 @@
+#!/usr/bin/env bluejay
+
+assert(Test:throws("Util:removeFile('i-hope-this-does-not-exist')"))
+
+-- Test:throws("error(false)")

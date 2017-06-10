@@ -1,9 +1,8 @@
 #!/usr/bin/env bluejay
 
--- TODO: Meta tests, so failures are successful tests...
-
+-- TODO: Need to assert that cleanup runs.
 function cleanup()
 	print("Cleaning up after failed assertion.")
 end
 
-assert(false, "Assertion is false, which is what it should be. Failure is success.")
+Test:throws(error("Raise an error. This shouldn't print inside the throws function.", 3))

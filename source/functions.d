@@ -50,13 +50,23 @@ class TestFunctions {
 	}
 
 	/** Return true if the provided code throws an error; false otherwise. */
+	//nothrow
 	bool throws(string code) {
+		// pcall takes care of Lua errors, and the try/catch handled D exceptions.
+		// Why isn't it catching anything?
+		// TODO: I can't execute in a state that's already executing code; I need to
+		// create a new LuaState, init it(?), then run the code on it.
+			import std.stdio:writeln;
 		try {
-			__lua.doString("pcall(" ~ code ~ ")");
-		} catch (Exception) {
+			auto lua2 = new LuaState();
+			auto ret = lua2.doString("pcall(" ~ code ~ ")");
+			writeln("pcall status: ", ret[0].to!bool);
+			return (! ret[0].to!bool);
+		} catch (Exception ex) {
+			writeln("Caught in throws: ", ex.msg);
 			return true;
 		}
-		return false;
+		assert(0);
 	}
 }
 
