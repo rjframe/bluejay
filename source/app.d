@@ -50,7 +50,6 @@ void runScript(LuaState lua, string path) {
 
 	// TODO: We need to reset the cleanup function prior to each script.
 	lua.doString("function cleanup() end");
-	writeln("Testing ", path, ".");
 	try {
 		auto retMessage = lua.doFile(path);
 		if (retMessage.length > 0) {
@@ -64,13 +63,12 @@ void runScript(LuaState lua, string path) {
 		import std.string : lastIndexOf, lineSplitter;
 
 		auto firstLine = (ex.msg).lineSplitter().front;
-		string msg;
-		foreach (section; firstLine.splitter(':')) {
-			if (lastIndexOf(section, '(') == -1) {
-				msg ~= section ~ ":";
-			}
-		}
-		writeln(msg[0..$-1]);
+		if (firstLine[0] == '[') {
+			import std.range : dropExactly;
+			import std.string : join;
+			auto str = firstLine.splitter(':');
+			writeln(path, ":", str.dropExactly(4).join(":"));
+		} else writeln(firstLine);
 	} finally {
 		auto cleanup = lua.get!LuaFunction("cleanup");
 		cleanup.call();
