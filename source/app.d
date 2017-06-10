@@ -28,7 +28,10 @@ int main(string[] args)
 		runScript(options, scriptPath);
 	} else {
 		foreach (script; dirEntries(scriptPath, "*.bj", SpanMode.shallow)) {
+		import std.stdio:writeln;
+		writeln("Running ", script);
 			runScript(options, script);
+		writeln("Finished.");
 		}
 	}
 
@@ -38,11 +41,9 @@ int main(string[] args)
 void runScript(Options options, string path) {
 	import std.stdio : writeln;
 	import luad.error;
-
 	import bluejay.execution_state : ExecutionState;
 
 	auto lua = new ExecutionState(options);
-	lua.doString("function cleanup() end");
 	try {
 		auto retMessage = lua.doFile(path);
 		if (retMessage.length > 0) {

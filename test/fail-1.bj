@@ -6,3 +6,5 @@ function cleanup()
 end
 
 Test:throws(error("Raise an error. This shouldn't print inside the throws function.", 3))
+
+assert(not Test:throws("2+2"));

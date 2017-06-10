@@ -33,7 +33,7 @@ class TestFunctions {
 	}
 */
 	@trusted
-	auto run(string command, string args) {
+	auto run(string command, string args) const {
 		import std.process : executeShell;
 		auto output = executeShell(command ~ " " ~ args);
 		return ExecuteReturns(output.status, output.output.dup);
@@ -53,7 +53,7 @@ class TestFunctions {
 
 	/** Return true if the provided code throws an error; false otherwise. */
 	//nothrow
-	bool throws(string code) {
+	bool throws(string code) const {
 		// pcall takes care of Lua errors, and the try/catch handled D exceptions.
 		// Why isn't it catching anything?
 		// TODO: I can't execute in a state that's already executing code; I need to
@@ -63,9 +63,10 @@ class TestFunctions {
 		try {
 			import bluejay.execution_state : ExecutionState;
 			auto lua = new ExecutionState(__options);
-			// TODO: I'm getting an InvalidMemoryException with this now.
-			//auto ret = lua.doString("return pcall(" ~ code ~ ")");
-			return false;// (! ret[0].to!bool);
+			auto failed = lua.doString("return pcall(" ~ code.dup ~ ")")[0];
+			// TODO: If I make this `return(!ret.to!bool)` I get an InvalidMemoryOperationError
+			//return ( ret.to!bool);
+			return ret;
 		} catch (Exception ex) {
 			return true;
 		}
@@ -76,7 +77,7 @@ class TestFunctions {
 /** Generic helper functions. */
 struct UtilFunctions {
 	@safe
-	string strip(LuaObject self, string str) {
+	string strip(LuaObject self, string str) const {
 		import std.string : strip;
 		return str.strip;
 	}
@@ -89,7 +90,7 @@ struct UtilFunctions {
 	}
 
 	@safe
-	bool fileExists(LuaObject self, string path) {
+	bool fileExists(LuaObject self, string path) const {
 		import std.file : exists, isFile;
 		return (path.exists && path.isFile);
 	}
@@ -103,7 +104,7 @@ struct UtilFunctions {
 	}
 
 	@safe
-	bool dirExists(LuaObject self, string path) {
+	bool dirExists(LuaObject self, string path) const {
 		import std.file : exists, isDir;
 		return (path.exists && path.isDir);
 	}
@@ -117,7 +118,7 @@ struct UtilFunctions {
 	}
 
 	/** Recursively deletes the specified directory. */
-	void removeDir(LuaObject self, string path) {
+	void removeDir(LuaObject self, string path) const {
 		import std.file : exists, isDir, rmdirRecurse;
 		if (path.exists && path.isDir) rmdirRecurse(path);
 	}
@@ -149,7 +150,7 @@ struct UtilFunctions {
 	}
 
 	@safe nothrow
-	bool removeFile(LuaObject self, string path) {
+	bool removeFile(LuaObject self, string path) const {
 		import std.file : exists, remove;
 		try {
 			remove(path);
@@ -196,7 +197,7 @@ struct UtilFunctions {
 	/** Creates a directory in the system's temporary directory and returns
 		the path.
 	*/
-	string getTempDir() {
+	string getTempDir() const {
 		import std.file : exists, mkdirRecurse, tempDir;
 
 		string dirName = "";
@@ -223,7 +224,7 @@ struct UtilFunctions {
 		path.
 	*/
 	@safe
-	string getTempFile() {
+	string getTempFile() const {
 		import std.file : exists, tempDir, write;
 
 		string fileName = "";
@@ -248,7 +249,7 @@ struct UtilFunctions {
 	}
 
 	@safe
-	private auto __getName() {
+	private auto __getName() const {
 		import std.algorithm : fill;
 		import std.conv : to;
 		import std.random : Random, randomCover, unpredictableSeed;
