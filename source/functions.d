@@ -2,6 +2,7 @@
 module bluejay.functions;
 
 import luad.all;
+import tested : test = name;
 
 /** Return values from executing a process.
 
@@ -15,11 +16,11 @@ struct ExecuteReturns {
 
 /** Functions to run tests. */
 class TestFunctions {
-	// It looks like this/self is being passed explicitly into the functions.
-	private LuaState __lua;
+	import bluejay.execution_state : Options;
+	private Options __options;
 
-	this(ref LuaState lua) {
-		__lua = lua;
+	this(Options options) {
+		__options = options;
 	}
 
 /*
@@ -38,12 +39,13 @@ class TestFunctions {
 		return ExecuteReturns(output.status, output.output.dup);
 	}
 
+	@test("TestFunctions.run executes a file.")
 	@trusted
 	unittest {
 		import std.string : strip;
 
 		auto lua = new LuaState();
-		auto t = new TestFunctions(lua);
+		auto t = new TestFunctions(Options());
 		auto ret = t.run("echo", "asdf");
 		assert(ret.Output.strip == "asdf");
 		assert(ret.ReturnCode == 0);
@@ -55,15 +57,16 @@ class TestFunctions {
 		// pcall takes care of Lua errors, and the try/catch handled D exceptions.
 		// Why isn't it catching anything?
 		// TODO: I can't execute in a state that's already executing code; I need to
-		// create a new LuaState, init it(?), then run the code on it.
-			import std.stdio:writeln;
+		// create a new LuaState, init it(?), then run the code on it. That's going
+		// to make the statement largely worthless, won't it?
+
 		try {
-			auto lua2 = new LuaState();
-			auto ret = lua2.doString("pcall(" ~ code ~ ")");
-			writeln("pcall status: ", ret[0].to!bool);
-			return (! ret[0].to!bool);
+			import bluejay.execution_state : ExecutionState;
+			auto lua = new ExecutionState(__options);
+			// TODO: I'm getting an InvalidMemoryException with this now.
+			//auto ret = lua.doString("return pcall(" ~ code ~ ")");
+			return false;// (! ret[0].to!bool);
 		} catch (Exception ex) {
-			writeln("Caught in throws: ", ex.msg);
 			return true;
 		}
 		assert(0);
@@ -78,6 +81,7 @@ struct UtilFunctions {
 		return str.strip;
 	}
 
+	@test("UtilFunctions.strip removes whitespace surrounding text.")
 	@safe
 	unittest {
 		auto u = UtilFunctions();
@@ -90,10 +94,12 @@ struct UtilFunctions {
 		return (path.exists && path.isFile);
 	}
 
+	@test("UtilFunctions.fileExists correctly reports whether a file exists.")
 	@safe
 	unittest {
 		auto u = UtilFunctions();
 		assert(u.fileExists(LuaObject(), "source/app.d"));
+		assert(! u.fileExists(LuaObject(), "source/this-is-not-there.qwe"));
 	}
 
 	@safe
@@ -102,18 +108,21 @@ struct UtilFunctions {
 		return (path.exists && path.isDir);
 	}
 
+	@test("UtilFunctions.dirExists correctly reports whehter a directory exists.")
 	@safe
 	unittest {
 		auto u = UtilFunctions();
 		assert(u.dirExists(LuaObject(), "source"));
+		assert(! u.dirExists(LuaObject(), "nodirhere"));
 	}
 
 	/** Recursively deletes the specified directory. */
 	void removeDir(LuaObject self, string path) {
-		import std.file : rmdirRecurse;
-		rmdirRecurse(path);
+		import std.file : exists, isDir, rmdirRecurse;
+		if (path.exists && path.isDir) rmdirRecurse(path);
 	}
 
+	@test("UtilFunctions.removeDir correctly removes a directory.")
 	unittest {
 		import std.file : exists, isDir, mkdir, tempDir;
 
@@ -127,25 +136,61 @@ struct UtilFunctions {
 		assert(! dirPath.exists, "Failed to delete a directory.");
 	}
 
-	@safe
-	void removeFile(LuaObject self, string path) {
-		import std.file : remove;
-		remove(path);
+	@test("UtilFunctions.removeDir on a nonexistent path does not throw.")
+	unittest {
+		import std.file : exists, tempDir;
+
+		immutable dirPath = tempDir() ~ "this-dir-is-not-here";
+		assert(! dirPath.exists,
+				"A directory that should not exist is present. Cannot test UtilFunction's removeDir.");
+
+		auto u = UtilFunctions();
+		u.removeDir(LuaObject(), dirPath);
 	}
 
+	@safe nothrow
+	bool removeFile(LuaObject self, string path) {
+		import std.file : exists, remove;
+		try {
+			remove(path);
+			return true;
+		} catch (Exception) /* FileException */ {
+			// If the file didn't exist, return true; if we failed to delete it,
+			// return true;
+			return (! path.exists);
+		}
+	}
+
+	@test("UtilFunctions.removeFile deletes a file.")
 	@safe
 	unittest {
 		import std.file : exists, isFile, tempDir, write;
 
 		immutable filePath = tempDir() ~ "util-removefile-this";
-
 		filePath.write("a");
 		assert(filePath.exists && filePath.isFile,
 				"Failed to create a file to test UtilFunction's removeDir.");
 
-		auto u = UtilFunctions();
-		u.removeFile(LuaObject(), filePath);
+		void func() nothrow {
+			auto u = UtilFunctions();
+			u.removeFile(LuaObject(), filePath);
+		} func();
+
 		assert(! filePath.exists, "Failed to delete a file.");
+	}
+
+	@test("UtilFunctions.removeFile does not throw if the file doesn't exist.")
+	@safe
+	unittest {
+		import std.file : exists, isFile, tempDir;
+
+		immutable filePath = tempDir() ~ "this-file-should-not-be-here.txt";
+		assert(! filePath.exists,
+				"A file that should not exist is present. Cannot test removeFile.");
+		void func() nothrow {
+			auto u = UtilFunctions();
+			u.removeFile(LuaObject(), filePath);
+		} func();
 	}
 
 	/** Creates a directory in the system's temporary directory and returns
@@ -164,6 +209,7 @@ struct UtilFunctions {
 		return dirName;
 	}
 
+	@test("UtilFunctions.getTempDir creates a temporary directory.")
 	unittest {
 		// TODO: Grab list of directories in the temp dir, then verify something
 		// new was created.
@@ -190,6 +236,7 @@ struct UtilFunctions {
 		return fileName;
 	}
 
+	@test("UtilFunctions.getTempFile creates a temporary file.")
 	@safe
 	unittest {
 		// TODO: Grab list of files in the temp dir, then verify something
@@ -213,6 +260,7 @@ struct UtilFunctions {
 		return name.to!string();
 	}
 
+	@test("UtilFunctions.__getName returns the name of a file that doesn't exist.")
 	@safe
 	unittest {
 		import std.file : exists;

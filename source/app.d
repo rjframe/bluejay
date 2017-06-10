@@ -42,7 +42,6 @@ void runScript(Options options, string path) {
 	import bluejay.execution_state : ExecutionState;
 
 	auto lua = new ExecutionState(options);
-
 	lua.doString("function cleanup() end");
 	try {
 		auto retMessage = lua.doFile(path);

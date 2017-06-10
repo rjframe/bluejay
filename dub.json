@@ -4,7 +4,8 @@
 		"Ryan Frame"
 	],
 	"dependencies": {
-		"luad": "~master"
+		"luad": "~master",
+		"tested": "~>0.9.4"
 	},
 	"description": "A cross-platform test runner.",
 	"copyright": "Copyright © 2017 Ryan Frame",
