@@ -26,7 +26,7 @@ class ExecutionState {
 
 		import bluejay.functions;
 		setVariables(lua);
-		TestFunctions t = new TestFunctions(options);
+		TestFunctions t = new TestFunctions(lua, options);
 		UtilFunctions u = UtilFunctions();
 		lua["Test"] = t;
 		lua["Util"] = u;

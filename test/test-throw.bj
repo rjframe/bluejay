@@ -1,0 +1,6 @@
+#!/usr/bin/env bluejay
+
+-- Test that throws determines whether the given code string would cause an error.
+
+assert(Test:throws("error('Raise an error. This shouldn\\\'t print inside the throws function.', 0)"))
+assert(not Test:throws("getfenv()"))
