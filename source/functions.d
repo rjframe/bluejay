@@ -152,7 +152,7 @@ struct UtilFunctions {
         return (path.exists && path.isDir);
     }
 
-    @test("UtilFunctions.dirExists correctly reports whehter a directory exists.")
+    @test("UtilFunctions.dirExists correctly reports whether a directory exists.")
     @safe
     unittest {
         auto u = UtilFunctions();
