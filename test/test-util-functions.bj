@@ -4,3 +4,6 @@
 
 local val = " \r\nas\ndf\tjk\r\nlmn. \n"
 assert(Util:strip(val) == "as\ndf\tjk\r\nlmn.")
+
+assert(Util:fileExists("./test/test-util-functions.bj"))
+assert(Util:dirExists("./"))
