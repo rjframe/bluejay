@@ -1,0 +1,9 @@
+#!/usr/bin/env bluejay
+
+-- We print the OS and architecture of the system to screen.
+
+print(System.OS)
+print(System["Arch"])
+
+-- If this is non-zero, we'll assume it's right. At least it didn't crash.
+assert(string.len(Env["PATH"]) > 0)

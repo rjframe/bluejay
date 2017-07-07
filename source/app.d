@@ -55,9 +55,8 @@ void runScript(Options options, string path) {
         import std.string : lastIndexOf, lineSplitter;
 
         auto firstLine = (ex.msg).lineSplitter().front;
-        // TODO FIXME: If "func()" is called in Lua the length will be 0.
         if (firstLine[0] == '[') {
-            import std.range : drop; //Exactly;
+            import std.range : drop;
             import std.string : join;
             auto str = firstLine.splitter(':');
             writeln(path, ":", str.drop(4).join(":"));
