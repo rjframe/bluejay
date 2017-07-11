@@ -96,7 +96,7 @@ class TestFunctions {
     unittest {
         auto lua = new LuaState();
         auto t = new TestFunctions(lua, Options());
-        auto ret = t.pcallFunc("getfenv()");
+        auto ret = t.__pcallFunc("getfenv()");
         assert(ret == "getfenv");
     }
 
@@ -104,7 +104,7 @@ class TestFunctions {
     unittest {
         auto lua = new LuaState();
         auto t = new TestFunctions(lua, Options());
-        auto ret = t.pcallFunc("print('some string')");
+        auto ret = t.__pcallFunc("print('some string')");
         assert(ret == "print,'some string'");
     }
 
@@ -112,13 +112,19 @@ class TestFunctions {
     unittest {
         auto lua = new LuaState();
         auto t = new TestFunctions(lua, Options());
-        auto ret = t.pcallFunc("print('some string', some_var)");
+        auto ret = t.__pcallFunc("print('some string', some_var)");
         assert(ret == "print,'some string',some_var");
     }
 }
 
 /** Generic helper functions. */
 struct UtilFunctions {
+    LuaState __lua;
+
+    this(LuaState lua) {
+        __lua = lua;
+    }
+
     @safe
     string strip(LuaObject self, string str) const {
         import std.string : strip;
@@ -262,8 +268,6 @@ struct UtilFunctions {
         import std.file : exists, isDir;
         auto u = UtilFunctions();
         auto dir = u.getTempDir;
-        import std.stdio:writeln;
-        writeln("Dir: ", dir);
         assert(dir.exists && dir.isDir);
     }
 
@@ -315,6 +319,67 @@ struct UtilFunctions {
         auto u = UtilFunctions();
         assert(! exists(u.__getName));
     }
+/+
+    string[] getFilesInDir(string dirName, string filter = "") {
+        import std.file : dirEntries;
+    }
++/
 
-    // TODO: Pretty-print Lua table.
+    // We have an optional parameter for maxLength.
+    void pprint(LuaObject self, LuaObject obj, int[] params...) {
+        if (params.length == 0) {
+            __pprint(self, obj, 4, 1);
+        } else if (params.length == 1) {
+            __pprint(self, obj, params[0], 1);
+        } else {
+            throw new Exception("Too many arguments were provided to pprint.");
+        }
+    }
+
+    private void __pprint(LuaObject self, LuaObject obj, int maxLevel,
+            int indent) {
+        if (maxLevel == 0) return;
+
+        import std.stdio : write, writeln;
+        auto tbl = cast(LuaTable) obj;
+        if (tbl.typeName != "table") {
+            // Not a table; we'll just print it as a string.
+            writeln(tbl.toString);
+            return;
+        }
+
+        import std.range : repeat, take;
+        import std.conv : text;
+        auto spaces = ' '.repeat().take(indent*4).text;
+        foreach (LuaObject key, LuaObject val; tbl) {
+            if (val.typeName == "table") {
+                write(spaces, key, ":");
+                if (maxLevel == 1) writeln(" [table]");
+                else writeln();
+
+                __pprint(self, val, maxLevel-1, indent+1);
+            } else {
+                writeln(spaces, key, ": ", val.toString);
+            }
+        }
+    }
+}
+
+/** Functions to manage the test script. */
+class ScriptFunctions {
+    import bluejay.execution_state : Options;
+    private Options __options;
+    private LuaState __lua;
+
+    this(ref LuaState lua, Options options) {
+        __options = options;
+        __lua = lua;
+    }
+
+    void exit(int returnCode = 0) {
+        import std.conv : text;
+        //luaopen_os(__lua.state);
+        __lua.doString("cleanup()");
+       __lua.doString("os.exit(" ~ returnCode.text ~ ")");
+    }
 }

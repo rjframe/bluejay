@@ -27,7 +27,7 @@ class ExecutionState {
         import bluejay.functions;
         setVariables(lua);
         TestFunctions t = new TestFunctions(lua, options);
-        UtilFunctions u = UtilFunctions();
+        UtilFunctions u = UtilFunctions(lua);
         lua["Test"] = t;
         lua["Util"] = u;
         lua.doString("function cleanup() end");
