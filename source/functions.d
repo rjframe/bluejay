@@ -11,6 +11,8 @@ import tested : test = name;
 struct ExecuteReturns {
     int ReturnCode;
     string Output;
+
+    @safe pure nothrow @nogc
     this(int r, string o) { ReturnCode = r; Output = o; }
 }
 
@@ -20,28 +22,30 @@ class TestFunctions {
     private Options __options;
     private LuaState __lua;
 
+    @safe pure nothrow @nogc
     this(ref LuaState lua, Options options) {
         __options = options;
         __lua = lua;
     }
 
-    @trusted
+    @safe
     auto run(string command, string args) const {
         import std.process : executeShell;
         auto output = executeShell(command ~ " " ~ args);
-        return ExecuteReturns(output.status, output.output.dup);
+        return ExecuteReturns(output.status, output.output);
     }
 
     @test("TestFunctions.run executes a file.")
-    @trusted
     unittest {
         import std.string : strip;
-
         auto lua = new LuaState();
         auto t = new TestFunctions(lua, Options());
-        auto ret = t.run("echo", "asdf");
-        assert(ret.Output.strip == "asdf");
-        assert(ret.ReturnCode == 0);
+
+        void func() @safe {
+            auto ret = t.run("echo", "asdf");
+            assert(ret.Output.strip == "asdf");
+            assert(ret.ReturnCode == 0);
+        } func();
     }
 
     /** Return true if the provided code throws an error; false otherwise.
@@ -146,12 +150,13 @@ class TestFunctions {
 struct UtilFunctions {
     LuaState __lua;
 
-    this(LuaState lua) {
+    @safe pure nothrow @nogc
+    this(ref LuaState lua) {
         __lua = lua;
     }
 
-    @safe
-    string strip(LuaObject self, string str) const {
+    @safe pure
+    string strip(ref LuaObject self, string str) const {
         import std.string : strip;
         return str.strip;
     }
@@ -160,7 +165,8 @@ struct UtilFunctions {
     @safe
     unittest {
         auto u = UtilFunctions();
-        assert(u.strip(LuaObject(), " asdf\t ") == "asdf");
+        auto l = LuaObject();
+        assert(u.strip(l, " asdf\t ") == "asdf");
     }
 
     @safe pure
@@ -187,7 +193,7 @@ struct UtilFunctions {
     }
 
     @safe
-    bool fileExists(LuaObject self, string path) const {
+    bool fileExists(ref LuaObject self, string path) const {
         import std.file : exists, isFile;
         return (path.exists && path.isFile);
     }
@@ -195,13 +201,14 @@ struct UtilFunctions {
     @test("UtilFunctions.fileExists correctly reports whether a file exists.")
     @safe
     unittest {
+        auto l = LuaObject();
         auto u = UtilFunctions();
-        assert(u.fileExists(LuaObject(), "source/app.d"));
-        assert(! u.fileExists(LuaObject(), "source/this-is-not-there.qwe"));
+        assert(u.fileExists(l, "source/app.d"));
+        assert(! u.fileExists(l, "source/this-is-not-there.qwe"));
     }
 
     @safe
-    bool dirExists(LuaObject self, string path) const {
+    bool dirExists(ref LuaObject self, string path) const {
         import std.file : exists, isDir;
         return (path.exists && path.isDir);
     }
@@ -209,13 +216,14 @@ struct UtilFunctions {
     @test("UtilFunctions.dirExists correctly reports whether a directory exists.")
     @safe
     unittest {
+        auto l = LuaObject();
         auto u = UtilFunctions();
-        assert(u.dirExists(LuaObject(), "source"));
-        assert(! u.dirExists(LuaObject(), "nodirhere"));
+        assert(u.dirExists(l, "source"));
+        assert(! u.dirExists(l, "nodirhere"));
     }
 
     /** Recursively deletes the specified directory. */
-    void removeDir(LuaObject self, string path) const {
+    void removeDir(ref LuaObject self, string path) const {
         import std.file : exists, isDir, rmdirRecurse;
         if (path.exists && path.isDir) rmdirRecurse(path);
     }
@@ -229,8 +237,9 @@ struct UtilFunctions {
         assert(dirPath.exists && dirPath.isDir,
                 "Failed to create a directory to test UtilFunction's removeDir.");
 
+        auto l = LuaObject();
         auto u = UtilFunctions();
-        u.removeDir(LuaObject(), dirPath);
+        u.removeDir(l, dirPath);
         assert(! dirPath.exists, "Failed to delete a directory.");
     }
 
@@ -243,12 +252,13 @@ struct UtilFunctions {
                 "A directory that should not exist is present. " ~
                 "Cannot test UtilFunction's removeDir.");
 
+        auto l = LuaObject();
         auto u = UtilFunctions();
-        u.removeDir(LuaObject(), dirPath);
+        u.removeDir(l, dirPath);
     }
 
     @safe nothrow
-    bool removeFile(LuaObject self, string path) const {
+    bool removeFile(ref LuaObject self, string path) const {
         import std.file : exists, remove;
         try {
             remove(path);
@@ -271,8 +281,9 @@ struct UtilFunctions {
                 "Failed to create a file to test UtilFunction's removeDir.");
 
         void func() nothrow {
+            auto l = LuaObject();
             auto u = UtilFunctions();
-            u.removeFile(LuaObject(), filePath);
+            u.removeFile(l, filePath);
         } func();
 
         assert(! filePath.exists, "Failed to delete a file.");
@@ -287,8 +298,9 @@ struct UtilFunctions {
         assert(! filePath.exists,
                 "A file that should not exist is present. Cannot test removeFile.");
         void func() nothrow {
+            auto l = LuaObject();
             auto u = UtilFunctions();
-            u.removeFile(LuaObject(), filePath);
+            u.removeFile(l, filePath);
         } func();
     }
 
@@ -452,12 +464,10 @@ struct UtilFunctions {
 
 /** Functions to manage the test script. */
 class ScriptFunctions {
-    import bluejay.execution_state : Options;
-    private Options __options;
     private LuaState __lua;
 
-    this(ref LuaState lua, Options options) {
-        __options = options;
+    @safe pure nothrow @nogc
+    this(ref LuaState lua) {
         __lua = lua;
     }
 
