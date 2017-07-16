@@ -412,7 +412,7 @@ struct UtilFunctions {
 +/
 
     // We have an optional parameter for maxLength.
-    void pprint(LuaObject self, LuaObject obj, int[] params...) {
+    void pprint(ref LuaObject self, LuaObject obj, int[] params...) {
         if (params.length == 0) {
             __pprint(self, obj, 4, 1);
         } else if (params.length == 1) {
@@ -422,17 +422,16 @@ struct UtilFunctions {
         }
     }
 
-    private void __pprint(LuaObject self, LuaObject obj, int maxLevel,
+    private void __pprint(ref LuaObject self, LuaObject obj, int maxLevel,
             int indent) {
         if (maxLevel == 0) return;
 
         import std.stdio : write, writeln;
-        auto tbl = cast(LuaTable) obj;
-        if (tbl.typeName != "table") {
-            // Not a table; we'll just print it as a string.
-            writeln(tbl.toString);
+        if (obj.typeName != "table") {
+            writeln(obj.toString);
             return;
         }
+        auto tbl = obj.to!LuaTable;
 
         import std.range : repeat, take;
         import std.conv : text;
