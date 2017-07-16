@@ -163,6 +163,29 @@ struct UtilFunctions {
         assert(u.strip(LuaObject(), " asdf\t ") == "asdf");
     }
 
+    @safe pure
+    string[] split(ref LuaObject self, string str) {
+        import std.string : splitLines;
+        return str.splitLines;
+    }
+
+    @test("UtilFunctions.split properly splits a string.")
+    @safe
+    unittest {
+        auto l = LuaObject();
+        auto u = UtilFunctions();
+        auto str = "1 and\n2 and\n3 and\ndone.";
+
+        void func() pure {
+            auto ret = u.split(l, str);
+
+            assert(ret[0] == "1 and", "Failed on first line.");
+            assert(ret[1] == "2 and", "Failed on second line.");
+            assert(ret[2] == "3 and", "Failed on third line.");
+            assert(ret[3] == "done.", "Failed on fourth line.");
+        } func();
+    }
+
     @safe
     bool fileExists(LuaObject self, string path) const {
         import std.file : exists, isFile;
