@@ -292,6 +292,44 @@ struct UtilFunctions {
         } func();
     }
 
+    void writeFile(ref LuaObject self, string path, string content) {
+        import std.stdio : toFile;
+        content.toFile(path);
+    }
+
+    @test("UtilFunctions.writeFile writes text to the specified file.")
+    unittest {
+        auto l = LuaObject();
+        auto u = UtilFunctions();
+        auto f = u.__getName;
+        u.writeFile(l, f, "This is a test.");
+
+        import std.file : readText, remove;
+        string text = readText(f);
+        remove(f);
+        assert(text == "This is a test.");
+    }
+
+    @safe
+    string readFile(ref LuaObject self, string path) {
+        import std.file : readText;
+        return readText(path);
+    }
+
+    @test("UtilFunctions.readFile reads the text of a file.")
+    @safe
+    unittest {
+        import std.file : write, remove;
+
+        auto l = LuaObject();
+        auto u = UtilFunctions();
+        auto f = u.__getName;
+        f.write("This is a test.");
+        auto text = u.readFile(l, f);
+        remove(f);
+        assert(text == "This is a test.");
+    }
+
     /** Creates a directory in the system's temporary directory and returns
       the path.
      */
