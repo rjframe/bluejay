@@ -93,7 +93,7 @@ class TestFunctions {
     // TODO: This needs to be well-tested with error handling.
     // Since we're testing for failure, we can't let this fail due to bad input...
     @safe pure
-    private string __pcallFunc(string code) {
+    private string __pcallFunc(string code) const {
         import std.algorithm.searching : balancedParens, findSplit;
         import std.algorithm.iteration : map, splitter;
         import std.array : join;
@@ -170,7 +170,7 @@ struct UtilFunctions {
     }
 
     @safe pure
-    string[] split(ref LuaObject self, string str) {
+    string[] split(ref LuaObject self, string str) const {
         import std.string : splitLines;
         return str.splitLines;
     }
@@ -304,7 +304,7 @@ struct UtilFunctions {
         } func();
     }
 
-    void writeFile(ref LuaObject self, string path, string content) {
+    void writeFile(ref LuaObject self, string path, string content) const {
         import std.stdio : toFile;
         content.toFile(path);
     }
@@ -323,7 +323,7 @@ struct UtilFunctions {
     }
 
     @safe
-    string readFile(ref LuaObject self, string path) {
+    string readFile(ref LuaObject self, string path) const {
         import std.file : readText;
         return readText(path);
     }
@@ -424,7 +424,7 @@ struct UtilFunctions {
 +/
 
     // We have an optional parameter for maxLength.
-    void pprint(ref LuaObject self, LuaObject obj, int[] params...) {
+    void pprint(ref LuaObject self, LuaObject obj, int[] params...) const {
         if (params.length == 0) {
             __pprint(self, obj, 4, 1);
         } else if (params.length == 1) {
@@ -435,7 +435,7 @@ struct UtilFunctions {
     }
 
     private void __pprint(ref LuaObject self, LuaObject obj, int maxLevel,
-            int indent) {
+            int indent) const {
         if (maxLevel == 0) return;
 
         import std.stdio : write, writeln;
