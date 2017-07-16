@@ -1,9 +1,0 @@
-#!/usr/bin/env bluejay
-
--- TODO: Test that the cleanup function is called after the script exits.
--- I'll need to call bluejay itself, so I need two levels of testing.
-
-function cleanup()
-	print("In cleanup.")
-end
-

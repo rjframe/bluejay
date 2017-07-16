@@ -1,0 +1,6 @@
+#!/bin/env bluejay
+
+-- Test that Util:readFile can read a file.
+
+local text = Util:readFile("test/test-readfile.txt")
+assert(text == "Can you read this?\n")

@@ -1,0 +1,11 @@
+#!/bin/env bluejay
+
+-- Test the line-splitter.
+
+local text = "1 and\n2 and\n3 and\ndone."
+local arr = Util:split(text)
+
+assert(arr[1] == "1 and")
+assert(arr[2] == "2 and")
+assert(arr[3] == "3 and")
+assert(arr[4] == "done.")
