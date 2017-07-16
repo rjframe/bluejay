@@ -64,9 +64,31 @@ class TestFunctions {
         assert(0);
     }
 
+    @test("TestFunctions.throws returns true when Lua throws.")
+    unittest {
+        auto lua = new LuaState();
+        auto t = new TestFunctions(lua, Options());
+
+        void func() nothrow {
+            assert(t.throws("assert(true)"));
+        } func();
+    }
+
+    @test("TestFunctions.throws returns false when Lua does not throw.")
+    unittest {
+        import bluejay.execution_state : ExecutionState;
+        auto lua = new ExecutionState(Options());
+        auto t = new TestFunctions(lua, Options());
+
+        void func() nothrow {
+            assert(! t.throws("getfenv()"));
+        } func();
+    }
+
     /** Convert a function call to arguments for the pcall function. */
     // TODO: This needs to be well-tested with error handling.
     // Since we're testing for failure, we can't let this fail due to bad input...
+    @safe pure
     private string __pcallFunc(string code) {
         import std.algorithm.searching : balancedParens, findSplit;
         import std.algorithm.iteration : map, splitter;
@@ -96,8 +118,11 @@ class TestFunctions {
     unittest {
         auto lua = new LuaState();
         auto t = new TestFunctions(lua, Options());
-        auto ret = t.__pcallFunc("getfenv()");
-        assert(ret == "getfenv");
+
+        void func() @safe pure {
+            auto ret = t.__pcallFunc("getfenv()");
+            assert(ret == "getfenv");
+        } func();
     }
 
     @test("pcallFunc returns the currect pcall arguments with one parameter.")
