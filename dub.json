@@ -1,5 +1,8 @@
 {
 	"name": "bluejay",
+	"description": "A cross-platform test runner.",
+	"copyright": "Copyright © 2017 Ryan Frame",
+	"license": "MIT",
 	"authors": [
 		"Ryan Frame"
 	],
@@ -7,7 +10,22 @@
 		"luad": "~master",
 		"tested": "~>0.9.4"
 	},
-	"description": "A cross-platform test runner.",
-	"copyright": "Copyright © 2017 Ryan Frame",
-	"license": "MIT"
+    "configurations": [
+        {
+            "name": "executable",
+            "targetType": "executable"
+        },
+        {
+            "name": "unittest",
+            "buildTypes": ["unittests", "debugMode", "debugInfo"],
+            "excludedSourceFiles": ["source/app.d"]
+        },
+        {
+            "name": "metatest",
+            "targetType": "executable",
+            "buildTypes": ["debugMode", "debugInfo"],
+            "postBuildCommands-windows": ["copy bluejay.exe bjtest\\"],
+            "postBuildCommands-posix": ["cp bluejay ./bjtest/"]
+        }
+    ]
 }
