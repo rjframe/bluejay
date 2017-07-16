@@ -11,6 +11,7 @@ int main(string[] args)
         writeln("Usage:");
         writeln("    bluejay [--luastd] PATH\n");
         writeln("\t--luastd\tUse the full lua standard library.");
+        writeln("\t-r|--recurse\tTest files in the specified directory recursively.");
         writeln("\tPATH (Required)\tThe path to the script file or directory.");
         writeln("\n\t-h, --help\tThis help information.");
         return 0;
