@@ -231,8 +231,9 @@ struct UtilFunctions {
     @test("UtilFunctions.removeDir correctly removes a directory.")
     unittest {
         import std.file : exists, isDir, mkdir, tempDir;
+        import std.path : dirSeparator;
 
-        immutable dirPath = tempDir() ~ "util-removedir-this";
+        immutable dirPath = tempDir() ~ dirSeparator ~ "util-removedir-this";
         mkdir(dirPath);
         assert(dirPath.exists && dirPath.isDir,
                 "Failed to create a directory to test UtilFunction's removeDir.");
@@ -246,8 +247,9 @@ struct UtilFunctions {
     @test("UtilFunctions.removeDir on a nonexistent path does not throw.")
     unittest {
         import std.file : exists, tempDir;
+        import std.path : dirSeparator;
 
-        immutable dirPath = tempDir() ~ "this-dir-is-not-here";
+        immutable dirPath = tempDir() ~ dirSeparator ~  "this-dir-is-not-here";
         assert(! dirPath.exists,
                 "A directory that should not exist is present. " ~
                 "Cannot test UtilFunction's removeDir.");
@@ -274,8 +276,9 @@ struct UtilFunctions {
     @safe
     unittest {
         import std.file : exists, isFile, tempDir, write;
+        import std.path : dirSeparator;
 
-        immutable filePath = tempDir() ~ "util-removefile-this";
+        immutable filePath = tempDir() ~ dirSeparator ~ "util-removefile-this";
         filePath.write("a");
         assert(filePath.exists && filePath.isFile,
                 "Failed to create a file to test UtilFunction's removeDir.");
@@ -347,15 +350,15 @@ struct UtilFunctions {
      */
     string getTempDir() const {
         import std.file : exists, mkdirRecurse, tempDir;
+        import std.path : dirSeparator;
 
         string dirName = "";
         while (true) {
-            dirName = tempDir() ~ __getName();
+            dirName = tempDir() ~ dirSeparator ~ __getName();
             if (! dirName.exists) break;
         }
 
         mkdirRecurse(dirName);
-        import std.path : dirSeparator;
         return dirName ~ dirSeparator;
     }
 
@@ -375,10 +378,11 @@ struct UtilFunctions {
     @safe
     string getTempFile() const {
         import std.file : exists, tempDir, write;
+        import std.path : dirSeparator;
 
         string fileName = "";
         while (true) {
-            fileName = tempDir() ~ __getName() ~ ".tmp";
+            fileName = tempDir() ~ dirSeparator ~ __getName() ~ ".tmp";
             if (! fileName.exists) break;
         }
 
