@@ -471,9 +471,15 @@ class ScriptFunctions {
         __lua = lua;
     }
 
-    void exit(int returnCode = 0) {
+    // One optional param: returnCode.
+    void exit(int[] params...) {
+        if (params.length > 1)
+            throw new Exception("Too many arguments passed to exit([return code]).");
+        int returnCode = params.length == 0 ? 0 : params[0];
+
         import std.conv : text;
-        //luaopen_os(__lua.state);
+        import luad.c.all : luaopen_os;
+        luaopen_os(__lua.state);
         __lua.doString("cleanup()");
        __lua.doString("os.exit(" ~ returnCode.text ~ ")");
     }

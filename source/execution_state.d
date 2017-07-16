@@ -29,8 +29,10 @@ class ExecutionState {
         setVariables(lua);
         TestFunctions t = new TestFunctions(lua, options);
         UtilFunctions u = UtilFunctions(lua);
+        ScriptFunctions s = new ScriptFunctions(lua);
         lua["Test"] = t;
         lua["Util"] = u;
+        lua["Script"] = s;
         lua.doString("function cleanup() end");
     }
 
