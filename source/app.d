@@ -1,5 +1,5 @@
+import std.stdio : writeln;
 import luad.all;
-
 import bluejay.execution_state : Options;
 
 int main(string[] args)
@@ -7,7 +7,6 @@ int main(string[] args)
     auto options = Options();
     mixin setOptions!(args, options);
     if (helpInfo.helpWanted) {
-        import std.stdio : writeln;
         writeln("Usage:");
         writeln("    bluejay [--luastd] PATH\n");
         writeln("\t--luastd\tUse the full lua standard library.");
@@ -20,12 +19,10 @@ int main(string[] args)
 
     import std.file;
     if (! scriptPath.exists) {
-        import std.stdio : writeln;
         writeln("Error: You must pass the path to a script to execute.");
         return 1;
     }
 
-    import std.stdio:writeln;
     if (scriptPath.isFile) {
         if (options.recurse)
             writeln("Ignoring --recurse option (testing a single file).");
@@ -44,7 +41,6 @@ int main(string[] args)
 }
 
 void runScript(Options options, string path) {
-    import std.stdio : writeln;
     import luad.error;
     import bluejay.execution_state : ExecutionState;
 
