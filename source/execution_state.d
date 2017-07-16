@@ -5,6 +5,7 @@ import luad.all;
 
 struct Options {
     bool luastd = false;
+    bool recurse = false;
     string scriptPath;
 }
 

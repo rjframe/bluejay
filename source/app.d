@@ -24,11 +24,16 @@ int main(string[] args)
         return 1;
     }
 
+    import std.stdio:writeln;
     if (scriptPath.isFile) {
+        if (options.recurse)
+            writeln("Ignoring --recurse option (testing a single file).");
         runScript(options, scriptPath);
     } else {
-        foreach (script; dirEntries(scriptPath, "*.bj", SpanMode.shallow)) {
-            import std.stdio:writeln;
+        SpanMode mode = SpanMode.shallow;
+        if (options.recurse) mode = SpanMode.depth;
+
+        foreach (script; dirEntries(scriptPath, "*.bj", mode)) {
             writeln("Running ", script);
             runScript(options, script);
             writeln("Finished.");
@@ -70,6 +75,7 @@ void runScript(Options options, string path) {
 mixin template setOptions(alias args, alias options) {
     import std.getopt : getopt;
     auto helpInfo = getopt(args,
-            "luastd", "\tUse the full lua standard library.", &options.luastd
+            "luastd", "\tUse the full lua standard library.", &options.luastd,
+            "r|recurse", "\tRecursively test subdirectories.", &options.recurse
             );
 }

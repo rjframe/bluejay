@@ -263,12 +263,12 @@ struct UtilFunctions {
 
     @test("UtilFunctions.getTempDir creates a temporary directory.")
     unittest {
-        // TODO: Grab list of directories in the temp dir, then verify something
-        // new was created.
-        import std.file : exists, isDir;
+        import std.file : exists, isDir, rmdirRecurse;
         auto u = UtilFunctions();
         auto dir = u.getTempDir;
         assert(dir.exists && dir.isDir);
+
+        rmdirRecurse(dir);
     }
 
     /** Creates a file in the system's temporary directory and returns the
@@ -291,12 +291,12 @@ struct UtilFunctions {
     @test("UtilFunctions.getTempFile creates a temporary file.")
     @safe
     unittest {
-        // TODO: Grab list of files in the temp dir, then verify something
-        // new was created.
-        import std.file : exists, isFile;
+        import std.file : exists, isFile, remove;
         auto u = UtilFunctions();
         auto f = u.getTempFile;
         assert(f.exists && f.isFile);
+
+        remove(f);
     }
 
     @safe
