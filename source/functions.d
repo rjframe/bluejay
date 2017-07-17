@@ -262,14 +262,14 @@ struct UtilFunctions {
     @safe nothrow
     bool removeFile(ref LuaObject self, string path) const {
         import std.file : exists, remove;
+
         try {
-            remove(path);
-            return true;
+            if (path.exists) remove(path);
         } catch (Exception) /* FileException */ {
             // If the file didn't exist, return true; if we failed to delete it,
-            // return true;
-            return (! path.exists);
+            // return false;
         }
+        return (! path.exists);
     }
 
     @test("UtilFunctions.removeFile deletes a file.")
