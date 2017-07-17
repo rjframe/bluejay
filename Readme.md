@@ -7,11 +7,12 @@ on multiple platforms (currently Windows and Linux), so you don't need to write
 something in both batch and shell scripts (or worse, leave no or few tests for
 Windows).
 
-Bluejay embeds a Lua interpreter, with a small test library. The library is not
-yet documented, but everything is tested in the ./test directory.
+Bluejay embeds a Lua interpreter, with a
+[small test library](https://bitbucket.org/rjframe/bluejay/wiki/Home).
+The ./test directory also functions as a source of examples.
 
-You can run a single test via `bluejay my-test.bj` or specify a directory to
-test all bj files within.
+You can run a single test via `bluejay my-test.bj` or specify a directory
+(`bluejay ./test`) to test all bj files within.
 
 ```Lua
 #!/usr/bin/env bluejay
