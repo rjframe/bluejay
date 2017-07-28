@@ -17,13 +17,8 @@
         },
         {
             "name": "unittest",
-            "buildTypes": ["unittests", "debugMode", "debugInfo"],
-            "excludedSourceFiles": ["source/app.d"]
-        },
-        {
-            "name": "metatest",
-            "targetType": "executable",
-            "buildTypes": ["debugMode", "debugInfo"],
+            "buildOptions": ["unittests", "debugMode", "debugInfo"],
+            "excludedSourceFiles": ["source/app.d"],
             "postBuildCommands-windows": ["copy bluejay.exe bjtest\\"],
             "postBuildCommands-posix": ["cp bluejay ./bjtest/"]
         }
