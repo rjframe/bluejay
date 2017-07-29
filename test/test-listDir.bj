@@ -1,0 +1,29 @@
+#!/bin/env bluejay
+
+-- Test the Util:listDir function.
+
+-- Returns everything in the directory.
+local files = Util:listDir("test/test-listDir")
+assert(# files == 4)
+
+-- The filter works.
+local justTxt = Util:listDir("test/test-listDir", "*.txt")
+assert(# justTxt == 2, "listDir did not properly filter files.")
+
+-- When passed a filename, returns only that filename.
+local f = Util:listDir("test/test-listDir/file1.txt")
+assert(# f == 1)
+assert(f[1] == "test/test-listDir/file1.txt")
+
+
+-- Throws if the path doesn't exist.
+-- TODO: Issue 1: Properly handle host functions.
+-- assert(Test:throws("Util:listDir('test/nonexistent')"),
+    -- "listDir should have thrown, but didn't.")
+-- The below is working.
+
+listDir = function(dir)
+    return Util:listDir(dir)
+end
+
+assert(Test:throws("listDir('test/nonexistent')"))
