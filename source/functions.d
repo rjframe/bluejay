@@ -48,6 +48,20 @@ class TestFunctions {
         } func();
     }
 
+    auto spawn(string command, string args) {
+        import std.process : spawnShell;
+        return spawnShell(command ~ " " ~ args).processID;
+    }
+
+    @test("TestFunctions.spawn executes a file and returns its PID.")
+    unittest {
+        import std.string : strip;
+        auto lua = new LuaState();
+        auto t = new TestFunctions(lua, Options());
+        auto ret = t.spawn("echo", "asdf");
+        assert(ret > 0);
+    }
+
     /** Return true if the provided code throws an error; false otherwise.
 
         pcall takes care of Lua errors, and the try/catch handled D exceptions.

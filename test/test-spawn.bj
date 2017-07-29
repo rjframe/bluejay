@@ -1,0 +1,6 @@
+#!/usr/bin/env bluejay
+
+-- Test that bluejay can spawn a new process.
+
+local pid = Test:spawn("echo", "asdf")
+assert(pid > 0)
