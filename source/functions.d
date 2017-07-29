@@ -206,6 +206,116 @@ struct UtilFunctions {
         } func();
     }
 
+    string cwd() const {
+        import std.file : getcwd;
+        return getcwd();
+    }
+
+    @test("UtilFunctions.cwd returns the application's current working directory.")
+    unittest {
+        import std.file : getcwd;
+        auto u = UtilFunctions();
+        assert(u.cwd() == getcwd);
+    }
+
+    /+ Access violation. Other attempts have OutOfMemoryError and
+       MemoryOperationException.
+
+    // baseDir is the directory containing the script, which will generally be
+    // more useful than cwd().
+    string baseDir() {
+        import std.path : dirName;
+        return __scriptDir.dirName;
+    }
+
+    @test("UtilFunctions.baseDir returns a directory name.")
+    unittest {
+        import std.path : isDir;
+        import bluejay.execution_state : ExecutionState, Options;
+        auto lua = new ExecutionState(Options(), "/some/dir");
+        auto u = UtilFunctions(lua);
+        // Note that the actual value of baseDir is platform-specific.
+        // There's no reason to care about the actual value.
+        assert(u.baseDir().length > 0);
+        assert(u.baseDir().isDir, "The returned value is not a directory.");
+    }
+    +/
+
+    // One optional param: filter.
+    string[] listDir(ref LuaObject self, string dir, string[] filter...) const {
+        import std.file;
+
+        if (filter.length > 1)
+            throw new Exception(
+                    "Too many arguments passed to listDir(dir, [filter]).");
+        if (! dir.exists)
+            throw new Exception("The directory " ~ dir ~ " does not exist.");
+        string[] files;
+
+        if (dir.isFile) {
+            files ~= dir;
+            return files;
+        }
+
+        auto f = "*";
+        if (filter.length == 1) {
+            f = filter[0];
+        }
+        foreach (entry; dirEntries(dir, f, SpanMode.shallow)) {
+            files ~= entry;
+        }
+        return files;
+    }
+
+    @test("UtilFunctions.listDir returns directory listing without filter.")
+    unittest {
+        import std.array : array;
+        import std.file : getcwd, dirEntries, SpanMode;
+        auto l = LuaObject();
+        auto u = UtilFunctions();
+        auto dir = getcwd();
+        string[] f = [];
+        assert(u.listDir(l, dir, f) == dirEntries(dir, SpanMode.shallow).array);
+    }
+
+    @test("UtilFunctions.listDir returns a filtered directory listing.")
+    unittest {
+        import std.array : array;
+        import std.file : getcwd, dirEntries, SpanMode;
+        auto l = LuaObject();
+        auto u = UtilFunctions();
+        auto dir = getcwd();
+        string[] f = ["*.json"];
+        assert(u.listDir(l, dir, f) == dirEntries(dir, f[0], SpanMode.shallow).array);
+    }
+
+    @safe
+    string fixPath(ref LuaObject self, string path) const {
+        import std.array : array;
+        import std.path : asNormalizedPath;
+        return path.asNormalizedPath.array;
+    }
+
+    version(Windows) {
+        @test("Windows: UtilFunctions.fixPath converts POSIX path to Windows " ~
+                "path.")
+        unittest {
+            auto l = LuaObject();
+            auto u = UtilFunctions();
+            assert(u.fixPath(l, "/some/dir") == "\\some\\dir");
+            assert(u.fixPath(l, "/some/dir/") == "\\some\\dir");
+        }
+    } else version(Posix) {
+        @test("POSIX: UtilFunctions.fixPath converts Windows path to POSIX path.")
+        unittest {
+            auto l = LuaObject();
+            auto u = UtilFunctions();
+            assert(u.fixPath(l, "\\some\\dir") == "/some/dir");
+            assert(u.fixPath(l, "\\some\\dir\\") == "/some/dir");
+            assert(u.fixPath(l, "c:\\some\\dir") == "/some/dir");
+        }
+    }
+
     @safe
     bool fileExists(ref LuaObject self, string path) const {
         import std.file : exists, isFile;
