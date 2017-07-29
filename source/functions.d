@@ -31,8 +31,7 @@ class TestFunctions {
     @safe
     auto run(string command, string args) const {
         import std.process : executeShell;
-        // Windows needs the quotation marks for relative paths.
-        auto output = executeShell("\"" ~ command ~ "\" " ~ args);
+        auto output = executeShell(command ~ " " ~ args);
         return ExecuteReturns(output.status, output.output);
     }
 
@@ -51,8 +50,7 @@ class TestFunctions {
 
     auto spawn(string command, string args) {
         import std.process : spawnShell;
-        // Windows needs the quotation marks for relative paths.
-        return spawnShell("\"" ~ command ~ "\" " ~ args).processID;
+        return spawnShell(command ~ " " ~ args).processID;
     }
 
     @test("TestFunctions.spawn executes a file and returns its PID.")

@@ -2,6 +2,7 @@
 
 -- TODO: Meta this. Test that the cleanup function is called after the script exits.
 
-local ret = Test:run('./bluejay', 'test/test-cleanup.lua')
+-- Windows needs the quotation marks for relative paths.
+local ret = Test:run('"./bluejay"', 'test/test-cleanup.lua')
 assert(string.find(ret.Output, 'In cleanup.'))
 
