@@ -2,5 +2,5 @@
 
 -- Test the fileExists and dirExists functions.
 
-assert(Util:fileExists("test/filesystem-1.bj"), "This file does not exist.")
+assert(Util:fileExists("test/test-fs-exists.bj"), "This file does not exist.")
 assert(Util:dirExists("."), "This directory does not exist.")
