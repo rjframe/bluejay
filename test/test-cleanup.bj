@@ -2,7 +2,6 @@
 
 -- TODO: Meta this. Test that the cleanup function is called after the script exits.
 
-function cleanup()
-	print("In cleanup.")
-end
+local ret = Test:run('./bluejay', 'test/test-cleanup.lua')
+assert(string.find(ret.Output, 'In cleanup.'))
 
