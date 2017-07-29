@@ -69,7 +69,6 @@ class TestFunctions {
     nothrow
     bool throws(string code) {
         import luad.error : LuaErrorException;
-
         try {
             auto ret = __lua.doString("return pcall(" ~ __pcallFunc(code)
                     ~ ")")[0];
@@ -103,9 +102,20 @@ class TestFunctions {
         } func();
     }
 
+    @test("Issue 1: TestFunctions.throws properly handles host function.")
+    unittest {
+        import bluejay.execution_state;
+        auto lua = new ExecutionState(Options());
+        auto t = new TestFunctions(lua, Options());
+
+        void func() nothrow {
+            assert(t.throws("Util:listDir('test/nonexistent')"));
+        } func();
+    }
+
     /** Convert a function call to arguments for the pcall function. */
     // TODO: This needs to be well-tested with error handling.
-    // Since we're testing for failure, we can't let this fail due to bad input...
+    // Since we're testing for failure, we can't let this fail due to bad input.
     @safe pure
     private string __pcallFunc(string code) const {
         import std.algorithm.searching : balancedParens, findSplit;
@@ -132,7 +142,8 @@ class TestFunctions {
         } else return [func[0], args].join(',');
     }
 
-    @test("pcallFunc returns the currect pcall arguments with no parameters.")
+    @test("TestFunctions.pcallFunc returns the currect pcall arguments with " ~
+            "no parameters.")
     unittest {
         auto lua = new LuaState();
         auto t = new TestFunctions(lua, Options());
@@ -143,20 +154,39 @@ class TestFunctions {
         } func();
     }
 
-    @test("pcallFunc returns the currect pcall arguments with one parameter.")
+    @test("TestFunctions.pcallFunc returns the currect pcall arguments with " ~
+            "one parameter.")
     unittest {
         auto lua = new LuaState();
         auto t = new TestFunctions(lua, Options());
-        auto ret = t.__pcallFunc("print('some string')");
-        assert(ret == "print,'some string'");
+
+        void func() @safe pure {
+            auto ret = t.__pcallFunc("print('some string')");
+            assert(ret == "print,'some string'");
+        }
     }
 
-    @test("pcallFunc returns the currect pcall arguments with two parameters.")
+    @test("TestFunctions.pcallFunc returns the currect pcall arguments with " ~
+            "two parameters.")
     unittest {
         auto lua = new LuaState();
         auto t = new TestFunctions(lua, Options());
-        auto ret = t.__pcallFunc("print('some string', some_var)");
-        assert(ret == "print,'some string',some_var");
+
+        void func() @safe pure {
+            auto ret = t.__pcallFunc("print('some string', some_var)");
+            assert(ret == "print,'some string',some_var");
+        }
+    }
+
+    @test("Issue 1: TestFunctions.pcallFunc properly handles host function.")
+    unittest {
+        auto lua = new LuaState();
+        auto t = new TestFunctions(lua, Options());
+
+        void func() @safe pure {
+            auto ret = t.__pcallFunc("Util:listDir('test/nonexistent')");
+            assert(ret == "Util:listDir,'test/nonexistent'");
+        }
     }
 }
 
@@ -180,7 +210,10 @@ struct UtilFunctions {
     unittest {
         auto u = UtilFunctions();
         auto l = LuaObject();
-        assert(u.strip(l, " asdf\t ") == "asdf");
+
+        void func() pure {
+            assert(u.strip(l, "\n asdf\t ") == "asdf");
+        } func();
     }
 
     @safe pure
@@ -189,7 +222,7 @@ struct UtilFunctions {
         return str.splitLines;
     }
 
-    @test("UtilFunctions.split properly splits a string.")
+    @test("UtilFunctions.split properly splits a string by newlines.")
     @safe
     unittest {
         auto l = LuaObject();
@@ -396,7 +429,7 @@ struct UtilFunctions {
         return (! path.exists);
     }
 
-    @test("UtilFunctions.removeFile deletes a file.")
+    @test("UtilFunctions.removeFile deletes a file and returns true.")
     @safe
     unittest {
         import std.file : exists, isFile, tempDir, write;
@@ -410,7 +443,7 @@ struct UtilFunctions {
         void func() nothrow {
             auto l = LuaObject();
             auto u = UtilFunctions();
-            u.removeFile(l, filePath);
+            assert(u.removeFile(l, filePath), "removeFile failed.");
         } func();
 
         assert(! filePath.exists, "Failed to delete a file.");
@@ -427,7 +460,7 @@ struct UtilFunctions {
         void func() nothrow {
             auto l = LuaObject();
             auto u = UtilFunctions();
-            u.removeFile(l, filePath);
+            assert(u.removeFile(l, filePath), "removeFile failed.");
         } func();
     }
 
@@ -521,7 +554,7 @@ struct UtilFunctions {
     }
 
     /** Creates a file in the system's temporary directory and returns the
-      path.
+        path.
      */
     @safe
     string getTempFile() const {
@@ -569,11 +602,6 @@ struct UtilFunctions {
         auto u = UtilFunctions();
         assert(! exists(u.__getName));
     }
-/+
-    string[] getFilesInDir(string dirName, string filter = "") {
-        import std.file : dirEntries;
-    }
-+/
 
     // We have an optional parameter for maxLength.
     void pprint(ref LuaObject self, LuaObject obj, int[] params...) const {
@@ -629,10 +657,10 @@ class ScriptFunctions {
             throw new Exception("Too many arguments passed to exit([return code]).");
         int returnCode = params.length == 0 ? 0 : params[0];
 
-        import std.conv : text;
-        import luad.c.all : luaopen_os;
-        luaopen_os(__lua.state);
-        __lua.doString("cleanup()");
-       __lua.doString("os.exit(" ~ returnCode.text ~ ")");
+        //import std.conv : text;
+        //import luad.c.all : luaopen_os;
+        //luaopen_os(__lua.state);
+        __lua.doString("cleanup() return");
+       //__lua.doString("os.exit(" ~ returnCode.text ~ ")");
     }
 }
