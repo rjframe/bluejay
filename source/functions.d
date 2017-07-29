@@ -469,9 +469,33 @@ struct UtilFunctions {
         assert(text == "This is a test.");
     }
 
+    void copyFile(ref LuaObject self, string source, string dest) {
+        import std.file : copy;
+        copy(source, dest);
+    }
+
+    @test("UtilFunctions.copyFile copies a file.")
+    unittest {
+        import std.file : exists, tempDir, readText, write;
+        import std.path : dirSeparator;
+        auto l = LuaObject();
+        auto u = UtilFunctions();
+        auto src = tempDir ~ dirSeparator ~ u.__getName;
+        auto dest = tempDir ~ dirSeparator ~ u.__getName;
+
+        assert(! dest.exists, "The destination file already exists. " ~
+                "Cannot test UtilFunctions.copyFile.");
+
+        src.write("some text");
+        u.copyFile(l, src, dest);
+        assert(dest.exists, "Failed to copy the file.");
+        assert(dest.readText == "some text", "File improperly copied.");
+    }
+
     /** Creates a directory in the system's temporary directory and returns
       the path.
      */
+    // In DMD 2.075.0+ this can be @safe.
     string getTempDir() const {
         import std.file : exists, mkdirRecurse, tempDir;
         import std.path : dirSeparator;
