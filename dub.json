@@ -18,9 +18,7 @@
         {
             "name": "unittest",
             "buildOptions": ["unittests", "debugMode", "debugInfo"],
-            "excludedSourceFiles": ["source/app.d"],
-            "postBuildCommands-windows": ["copy bluejay.exe bjtest\\"],
-            "postBuildCommands-posix": ["cp bluejay ./bjtest/"]
+            "excludedSourceFiles": ["source/app.d"]
         }
     ]
 }
