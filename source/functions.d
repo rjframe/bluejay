@@ -28,10 +28,17 @@ class TestFunctions {
         __lua = lua;
     }
 
+    // Optional parameter: args.
     @safe
-    auto run(string command, string args) const {
+    auto run(string command, string[] args...) const {
         import std.process : executeShell;
-        auto output = executeShell(command ~ " " ~ args);
+        if (args.length > 1)
+            throw new Exception("Too many arguments given for args.");
+
+        string arg;
+        if (args.length == 1) arg = args[0];
+
+        auto output = executeShell(command ~ " " ~ arg);
         return ExecuteReturns(output.status, output.output);
     }
 
@@ -48,9 +55,15 @@ class TestFunctions {
         } func();
     }
 
-    auto spawn(string command, string args) {
+    // Optional parameter: args.
+    auto spawn(string command, string[] args...) {
         import std.process : spawnShell;
-        return spawnShell(command ~ " " ~ args).processID;
+        if (args.length > 1)
+            throw new Exception("Too many arguments given for args.");
+
+        string arg;
+        if (args.length == 1) arg = args[0];
+        return spawnShell(command ~ " " ~ arg).processID;
     }
 
     @test("TestFunctions.spawn executes a file and returns its PID.")
