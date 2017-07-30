@@ -422,10 +422,7 @@ struct UtilFunctions {
 
         try {
             if (path.exists) remove(path);
-        } catch (Exception) /* FileException */ {
-            // If the file didn't exist, return true; if we failed to delete it,
-            // return false;
-        }
+        } catch (Exception) /* FileException */ {}
         return (! path.exists);
     }
 
@@ -631,7 +628,7 @@ struct UtilFunctions {
         foreach (LuaObject key, LuaObject val; tbl) {
             if (val.typeName == "table") {
                 write(spaces, key, ":");
-                if (maxLevel == 1) writeln(" [table]");
+                if (maxLevel == 1) writeln(" {table}");
                 else writeln();
 
                 __pprint(self, val, maxLevel-1, indent+1);
