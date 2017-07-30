@@ -7,4 +7,4 @@ function cleanup()
 	print("In cleanup.")
 end
 
-
+assert(false)
