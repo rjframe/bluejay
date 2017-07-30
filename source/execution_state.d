@@ -42,10 +42,13 @@ class ExecutionState {
         Tuple!(string, string)[] system;
         version(Windows) {
             system ~= tuple("OS", "Windows");
+            system ~= tuple("endl", "\r\n");
         } else version(linux) {
             system ~= tuple("OS", "Linux");
+            system ~= tuple("endl", "\n");
         } else version(OSX) {
             system ~= tuple("OS", "macOS");
+            system ~= tuple("endl", "\n");
         }
         version(X86) {
             system ~= tuple("Arch", "x86");
