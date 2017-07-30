@@ -15,7 +15,6 @@ local f = Util:listDir("test/test-listDir/file1.txt")
 assert(# f == 1)
 assert(f[1] == "test/test-listDir/file1.txt")
 
-
 -- Throws if the path doesn't exist.
 -- TODO: Issue 1: Properly handle host functions.
 -- assert(Test:throws("Util:listDir('test/nonexistent')"),
@@ -25,5 +24,4 @@ assert(f[1] == "test/test-listDir/file1.txt")
 listDir = function(dir)
     return Util:listDir(dir)
 end
-
 assert(Test:throws("listDir('test/nonexistent')"))

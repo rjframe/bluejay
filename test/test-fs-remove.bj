@@ -1,0 +1,20 @@
+#!/usr/bin/env bluejay
+
+-- Test Util:removeFile
+
+-- Sucessfully removes a file.
+Util:writeFile('test-fs-remove.txt', 'some text')
+assert(Util:fileExists('test-fs-remove.txt'))
+assert(Util:removeFile('test-fs-remove.txt', 'Failed to remove file.'))
+assert(not Util:fileExists('test-fs-remove.txt'), 'The deleted file still exists.')
+
+-- Removing a nonexistent file returns true, not throws an error.
+-- This isn't working (issue 1) - workaround below.
+-- assert(not Test:throws("Util:removeFile('i-hope-this-does-not-exist')"))
+
+removeFile = function(f)
+    return Util:removeFile(f)
+end
+
+assert(not Test:throws("removeFile('i-hope-this-does-not-exist')"))
+assert(Util:removeFile('i-really-hope-this-does-not-exist'))

@@ -1,6 +1,0 @@
-#!/usr/bin/env bluejay
-
--- Test that removing a nonexistent file returns false, not throws an error.
-
-assert(not Test:throws("Util:removeFile('i-hope-this-does-not-exist')"))
-assert(not Util:removeFile('i-hope-this-does-not-exist'))

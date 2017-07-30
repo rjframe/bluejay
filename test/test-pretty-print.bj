@@ -1,18 +1,52 @@
 #!/usr/bin/env bluejay
 
--- Pretty-print a bluejay table.
+-- Pretty-print a bluejay table in test-pretty-print.lua.
 
-t = {"asdf", sdfg={1, 2, 3, 4}, qwer={"asdf", wer={3,4,5,6}}}
-print("The full table:")
-Util:pprint(t)
+-- Test printing the full table
 
--- Only print one sublevel.
-print("\nOnly print two levels of tables:")
-Util:pprint(t, 2)
+local t1 =
+'    1: asdf' .. System.endl ..
+'    qwer:' .. System.endl ..
+'        1: asdf' .. System.endl ..
+'        wer:' .. System.endl ..
+'            1: 3' .. System.endl ..
+'            2: 4' .. System.endl ..
+'            3: 5' .. System.endl ..
+'            4: 6' .. System.endl ..
+'    sdfg:' .. System.endl ..
+'        1: 1' .. System.endl ..
+'        2: 2' .. System.endl ..
+'        3: 3' .. System.endl ..
+'        4: 4' .. System.endl
 
-print("\nPrint something that isn't a table:")
-Util:pprint(123)
+local one = Test:run('"./bluejay"', 'test/test-pretty-print/pprint1.lua')
+assert(string.find(one.Output, t1))
 
-print("\nPrint nothing:")
-Util:pprint(t, 0)
 
+-- Test that we can print only two levels of a table.
+
+local t2=
+'    1: asdf' .. System.endl ..
+'    qwer:' .. System.endl ..
+'        1: asdf' .. System.endl ..
+'        wer: {table}' .. System.endl ..
+'    sdfg:' .. System.endl ..
+'        1: 1' .. System.endl ..
+'        2: 2' .. System.endl ..
+'        3: 3' .. System.endl ..
+'        4: 4' .. System.endl
+
+
+local two = Test:run('"./bluejay"', 'test/test-pretty-print/pprint2.lua')
+assert(string.find(two.Output, t2))
+
+
+-- Test printing a non-table.
+local three = Test:run('"./bluejay"', 'test/test-pretty-print/pprint3.lua')
+assert(string.find(three.Output, '123'))
+
+
+-- Test printing nothing.
+local four = Test:run('"./bluejay"', 'test/test-pretty-print/pprint4.lua')
+assert(not string.find(four.Output, t1))
+assert(not string.find(four.Output, t2))

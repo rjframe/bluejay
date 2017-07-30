@@ -1,6 +1,6 @@
 #!/bin/env bluejay
 
--- Test Util:writeFile()
+-- Test the Util:writeFile function.
 
 function cleanup()
     Util:removeFile(path)
@@ -9,6 +9,4 @@ end
 -- Note: If path is declared as local, the cleanup function won't see it.
 path = Util:getTempFile()
 Util:writeFile(path, "This is some text.")
-local text = Util:readFile(path)
-
-assert(text == "This is some text.")
+assert(Util:readFile(path) == "This is some text.")

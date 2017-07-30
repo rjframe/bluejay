@@ -1,9 +1,12 @@
-#!/usr/bin/env bluejay
+#!/bin/env bluejay
 
--- We print the OS and architecture of the system to screen.
+-- Test the System variables.
+-- This one is technically useless since I'm using the System variables to test
+-- the system variables...
 
-print(System.OS)
-print(System["Arch"])
+local ret = Test:run('"./bluejay"', 'test/test-system.lua')
 
--- If this is non-zero, we'll assume it's right. At least it didn't crash.
-assert(string.len(Env["PATH"]) > 0)
+assert(string.find(ret.Output, System.OS))
+assert(string.find(ret.Output, System.endl .. System.endl))
+assert(string.find(ret.Output, System.Arch))
+
