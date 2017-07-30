@@ -53,7 +53,7 @@ class ExecutionState {
         version(X86) {
             system ~= tuple("Arch", "x86");
         } else version(X86_64) {
-            system ~= tuple("Arch", "x86-64");
+            system ~= tuple("Arch", "x86_64");
         } else version(ARM) {
             system ~= tuple("Arch", "ARM");
         }
