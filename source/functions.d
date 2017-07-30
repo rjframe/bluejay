@@ -393,9 +393,13 @@ struct UtilFunctions {
     }
 
     /** Recursively deletes the specified directory. */
-    void removeDir(ref LuaObject self, string path) const {
+    bool removeDir(ref LuaObject self, string path) const {
         import std.file : exists, isDir, rmdirRecurse;
-        if (path.exists && path.isDir) rmdirRecurse(path);
+        if (path.exists && path.isDir) {
+            rmdirRecurse(path);
+            return ! path.exists;
+        }
+        return ! path.exists;
     }
 
     @test("UtilFunctions.removeDir correctly removes a directory.")

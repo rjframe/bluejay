@@ -1,0 +1,20 @@
+#!/usr/bin/env bluejay
+
+-- Test Util:removeDir
+
+-- Sucessfully removes a directory.
+local dir = Util:getTempDir()
+assert(Util:dirExists(dir))
+assert(Util:removeDir(dir, 'Failed to remove directory.'))
+assert(not Util:dirExists(dir), 'The deleted directory still exists.')
+
+-- Removing a nonexistent directory returns true, not throws an error.
+-- This isn't working (issue 1) - workaround below.
+-- assert(not Test:throws("Util:removeDir('i-hope-this-does-not-exist')"))
+
+removeDir = function(d)
+    return Util:removeDir(d)
+end
+
+assert(not Test:throws("removeDir('i-hope-this-does-not-exist')"))
+assert(Util:removeDir('i-really-hope-this-does-not-exist'))
