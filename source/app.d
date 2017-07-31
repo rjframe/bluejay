@@ -32,7 +32,7 @@ int main(string[] args)
         if (options.recurse) mode = SpanMode.depth;
 
         foreach (script; dirEntries(scriptPath, "*.bj", mode)) {
-            writeln("Running ", script);
+            writeln("\033[32mRunning\033[0m ", script);
             runScript(options, script);
             writeln("Finished.");
         }
@@ -61,8 +61,8 @@ void runScript(Options options, string path) {
             import std.range : drop;
             import std.string : join;
             auto str = firstLine.splitter(':');
-            writeln(path, ":", str.drop(4).join(":"));
-        } else writeln(firstLine);
+            writeln("\033[31m" ~ path, ":\033[0m", str.drop(4).join(":"));
+        } else writeln("\033[31m", firstLine, "\033[0m");
     } finally {
         auto cleanup = lua.get!LuaFunction("cleanup");
         cleanup.call();
