@@ -56,7 +56,7 @@ class TestFunctions {
     }
 
     // Optional parameter: args.
-    auto spawn(string command, string[] args...) {
+    auto spawn(string command, string[] args...) const {
         import std.process : spawnShell;
         if (args.length > 1)
             throw new Exception("Too many arguments given for args.");
@@ -584,7 +584,8 @@ struct UtilFunctions {
         assert(text == "This is a test.");
     }
 
-    void copyFile(ref LuaObject self, string source, string dest) {
+    @safe
+    void copyFile(ref LuaObject self, string source, string dest) const {
         import std.file : copy;
         copy(source, dest);
     }
@@ -734,6 +735,7 @@ class ScriptFunctions {
     }
 
     // One optional param: returnCode.
+    @safe
     void exit(int[] params...) {
         if (params.length > 1)
             throw new Exception("Too many arguments passed to exit([return code]).");
