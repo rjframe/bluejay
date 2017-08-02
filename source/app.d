@@ -26,6 +26,7 @@ int main(string[] args)
     if (scriptPath.isFile) {
         if (options.recurse)
             writeln("Ignoring --recurse option (testing a single file).");
+        writeln("\033[32mRunning\033[0m ", scriptPath);
         runScript(options, scriptPath);
     } else {
         SpanMode mode = SpanMode.shallow;
