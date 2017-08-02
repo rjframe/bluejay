@@ -403,11 +403,31 @@ struct UtilFunctions {
         assert(u.listDir(l, dir, f) == dirEntries(dir, f[0], SpanMode.shallow).array);
     }
 
-    @safe
+    @safe pure nothrow
     string fixPath(ref LuaObject self, string path) const {
         import std.array : array;
         import std.path : asNormalizedPath;
-        return path.asNormalizedPath.array;
+
+        version(Windows) {
+            return path.asNormalizedPath.array;
+        } else {
+            import std.uni : isAlpha;
+            auto thePath = path.asNormalizedPath.array;
+
+            if (thePath[0].isAlpha) {
+                if (thePath[1] == ':') {
+                    thePath = thePath[2 .. $];
+                }
+            }
+            if (thePath[$-1] == '/' || thePath[$-1] == '\\') {
+                thePath = thePath[0 .. $-1];
+            }
+            for (int i = 0; i < thePath.length; i++) {
+                if (thePath[i] == '\\') thePath[i] = '/';
+            }
+
+            return thePath.idup;
+        }
     }
 
     version(Windows) {

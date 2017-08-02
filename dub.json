@@ -1,6 +1,6 @@
 {
 	"name": "bluejay",
-	"description": "A cross-platform test runner.",
+	"description": "A cross-platform application test script runner.",
 	"copyright": "Copyright © 2017 Ryan Frame",
 	"license": "MIT",
 	"authors": [

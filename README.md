@@ -34,7 +34,7 @@ end
 ```
 
 ```Lua
-#!/bin/env bluejay
+#!/usr/bin/env bluejay
 
 -- Test that Util:writeFile() writes text to the filesystem.
 
