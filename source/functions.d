@@ -75,6 +75,74 @@ class TestFunctions {
         assert(ret > 0);
     }
 
+    bool diff(string path1, string path2) const {
+        import std.stdio : File, Yes;
+        auto f1 = File(path1);
+        scope(exit) f1.close;
+        auto f2 = File(path2);
+        scope(exit) f2.close;
+
+        auto f2range = f2.byLineCopy(Yes.keepTerminator);
+        foreach (f1line; f1.byLineCopy(Yes.keepTerminator)) {
+            if (! __diffString(f1line, f2range.front)) return false;
+            f2range.popFront;
+        }
+        return true;
+    }
+
+    @safe pure nothrow @nogc
+    private bool __diffString(string one, string two) const {
+        if (one == two) return true;
+
+        if (one[$-2] == '\r') {
+            if (one[0 .. $-2] == two[0 .. $-1]) return true;
+        } else if (two[$-2] == '\r') {
+            if (two[0 .. $-2] == one[0 .. $-1]) return true;
+        }
+        return false;
+    }
+
+    @test("TestFunctions.diff is newline-agnostic.")
+    unittest {
+        auto lua = new LuaState();
+        auto t = new TestFunctions(lua, Options());
+        string one = " asdfsdfg\n";
+        string two = " asdfsdfg\r\n";
+
+        @safe pure nothrow @nogc func() {
+            assert(t.__diffString(one, two),
+                    "diff says the second string is different.");
+            assert(t.__diffString(two, one),
+                    "diff says the first string is different.");
+        } func();
+    }
+
+    @test("TestFunctions.diff returns true on identical strings.")
+    unittest {
+        auto lua = new LuaState();
+        auto t = new TestFunctions(lua, Options());
+        string one = " asdfsdfg\n";
+        string two = " asdfsdfg\n";
+
+        @safe pure nothrow @nogc func() {
+            assert(t.__diffString(one, two));
+            assert(t.__diffString(two, one));
+        } func();
+    }
+
+    @test("TestFunctions.diff returns false on non-matching strings.")
+    unittest {
+        auto lua = new LuaState();
+        auto t = new TestFunctions(lua, Options());
+        string one = " asdfsdfg\n";
+        string two = " asdfdfg\n";
+
+        @safe pure nothrow @nogc func() {
+            assert(! t.__diffString(one, two));
+            assert(! t.__diffString(two, one));
+        } func();
+    }
+
     /** Return true if the provided code throws an error; false otherwise.
 
         pcall takes care of Lua errors, and the try/catch handled D exceptions.

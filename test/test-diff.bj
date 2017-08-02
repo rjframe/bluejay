@@ -1,0 +1,21 @@
+#!/usr/bin/env bluejay
+
+-- Test that Test:diff is newline-agnostic.
+
+-- file0 and file1 are UNIX, file2 and file3 are Windows, file4 is mixed.
+-- file5 is not identical.
+
+assert(Test:diff('test/test-diff/file0.txt', 'test/test-diff/file1.txt'),
+    'Failed to compare UNIX line-endings.')
+
+assert(Test:diff('test/test-diff/file0.txt', 'test/test-diff/file0.txt'),
+    'Failed to compare UNIX and Windows line-endings.')
+
+assert(Test:diff('test/test-diff/file2.txt', 'test/test-diff/file3.txt'),
+    'Failed to compare Windows line-endings.')
+
+assert(Test:diff('test/test-diff/file0.txt', 'test/test-diff/file4.txt'),
+    'Failed to compare mixed line-endings.')
+
+assert(not Test:diff('test/test-diff/file0.txt', 'test/test-diff/file5.txt'),
+    'diff says two unequal files match.')
