@@ -1,0 +1,5 @@
+#!/usr/bin/env bluejay
+
+-- This test exists to show what a failing test looks like in the runner.
+
+assert(false, "Gasp! false is not equal to true!")
