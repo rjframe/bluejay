@@ -606,8 +606,8 @@ struct UtilFunctions {
 
     @safe
     void copyFile(ref LuaObject self, string source, string dest) const {
-        import std.file : copy;
-        copy(source, dest);
+        import std.file : copy, No;
+        copy(source, dest, No.preserveAttributes);
     }
 
     @test("UtilFunctions.copyFile copies a file.")
