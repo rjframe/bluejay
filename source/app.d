@@ -59,11 +59,12 @@ void runScript(Options options, string path) {
 
         auto firstLine = (ex.msg).lineSplitter().front;
         if (firstLine[0] == '[') {
+            // Error within a pcall function.
             import std.range : drop;
             import std.string : join;
             auto str = firstLine.splitter(':');
-            writeln("\033[31m" ~ path, ":\033[0m", str.drop(4).join(":"));
-        } else writeln("\033[31m", firstLine, "\033[0m");
+            writeln("Error: \033[31m" ~ path, ":\033[0m ", str.drop(4).join(":"));
+        } else writeln("\033[31mError:\033[0m ", firstLine);
     } finally {
         auto cleanup = lua.get!LuaFunction("cleanup");
         cleanup.call();
