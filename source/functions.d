@@ -75,6 +75,13 @@ class TestFunctions {
         assert(ret > 0);
     }
 
+    /** Compare the contents of two files.
+
+        This works like the UNIX diff command; we return true if the files are
+        the same, and false otherwise.
+
+        Differences in line endings are ignored.
+    */
     bool diff(string path1, string path2) const {
         import std.stdio : File, Yes;
         auto f1 = File(path1);
@@ -84,6 +91,7 @@ class TestFunctions {
 
         auto f2range = f2.byLineCopy(Yes.keepTerminator);
         foreach (f1line; f1.byLineCopy(Yes.keepTerminator)) {
+            if (f2range.empty) return false;
             if (! __diffString(f1line, f2range.front)) return false;
             f2range.popFront;
         }
