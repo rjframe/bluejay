@@ -10,30 +10,39 @@ struct Options {
 }
 
 class ExecutionState {
-    LuaState lua; // I can't alias this if it's private?
-    alias lua this;
+    import bluejay.functions;
+    private:
+
+    TestFunctions _testFunctions;
+    UtilFunctions _utilFunctions;
+    ScriptFunctions _scriptFunctions;
+
+    public:
+
+    // It would be nice to make this `package` but alias this won't work.
+    LuaState _lua;
+    alias _lua this;
 
     this(Options options) {
-        this.lua = new LuaState;
+        this._lua = new LuaState;
 
         if (options.luastd) {
-            lua.openLibs();
+            _lua.openLibs();
         } else {
             import luad.c.all;
             // TODO: Add utf8, table?
-            luaopen_base(lua.state);
-            luaopen_string(lua.state);
+            luaopen_base(_lua.state);
+            luaopen_string(_lua.state);
         }
 
-        import bluejay.functions;
-        setVariables(lua);
-        TestFunctions t = new TestFunctions(lua, options);
-        UtilFunctions u = UtilFunctions(lua);
-        ScriptFunctions s = new ScriptFunctions(lua);
-        lua["Test"] = t;
-        lua["Util"] = u;
-        lua["Script"] = s;
-        lua.doString("function cleanup() end");
+        setVariables(_lua);
+        _testFunctions = new TestFunctions(_lua, options);
+        _utilFunctions = UtilFunctions(_lua);
+        _scriptFunctions = new ScriptFunctions(_lua);
+        _lua["Test"] = _testFunctions;
+        _lua["Util"] = _utilFunctions;
+        _lua["Script"] = _scriptFunctions;
+        _lua.doString("function cleanup() end");
     }
 
     private void setVariables(ref LuaState lua) {
